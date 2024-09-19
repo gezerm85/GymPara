@@ -13,56 +13,54 @@ const FitScreen = () => {
   const exercise = route.params.item.exercises;
   const current = exercise[index];
 
-  console.log(current);
-
   const handleDonePress = () => {
     if (index + 1 >= exercise.length) {
       navigation.navigate("HomeScreen");
     } else {
-      navigation.navigate("RestScreen");
+      navigation.navigate("RestScreen", { item: exercise[index + 1] });
       setTimeout(() => {
         setIndex(index + 1);
       }, 2000);
     }
   };
 
+  const handleOnPrevPress = () => {
+    navigation.navigate("RestScreen", { item: exercise[index - 1] });
+    setTimeout(() => {
+      setIndex(index - 1);
+    }, 2000);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Image style={styles.image} source={{ uri: current?.image }} />
 
-      <Text style={styles.exerciseName}>
-        {current?.name}
-      </Text>
+      <Text style={styles.exerciseName}>{current?.name}</Text>
 
       <Text style={styles.sets}>x{current?.sets}</Text>
 
       {/* Done Button */}
-      <TouchableOpacity onPress={handleDonePress} style={styles.doneButton}>
-        <Ionicons name="checkmark-circle" size={24} color="white" />
-        <Text style={styles.doneButtonText}>DONE</Text>
-      </TouchableOpacity>
+      <View style={styles.doneContainer}>
+        <TouchableOpacity onPress={handleDonePress} style={styles.doneButton}>
+          <Ionicons name="checkmark-circle" size={24} color="#fff" />
+          <Text style={styles.doneButtonText}>BİTİR</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Previous & Skip Buttons */}
       <View style={styles.navButtonsContainer}>
         <TouchableOpacity
           disabled={index === 0}
-          onPress={() => {
-            navigation.navigate("RestScreen");
-            setTimeout(() => {
-              setIndex(index - 1);
-            }, 2000);
-          }}
+          onPress={handleOnPrevPress}
           style={[styles.navButton, index === 0 && styles.disabledButton]}
         >
-          <Text style={styles.navButtonText}>
-            <Ionicons name="play-skip-back" size={22} color="#6d6868" /> PREV
-          </Text>
+          <Ionicons name="play-skip-back" size={22} color="#6d6868" />
+          <Text style={styles.navButtonText}>ÖNCEKİ</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleDonePress} style={styles.navButton}>
-          <Text style={styles.navButtonText}>
-            <Ionicons name="play-skip-forward" size={22} color="#3f3d3d" /> SKIP
-          </Text>
+          <Ionicons name="play-skip-forward" size={22} color="#3f3d3d" />
+          <Text style={styles.navButtonText}>SIRADAKİ</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -72,7 +70,8 @@ const FitScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: "#fff",
+    justifyContent: "space-between",
   },
   image: {
     width: "100%",
@@ -91,33 +90,44 @@ const styles = StyleSheet.create({
     fontSize: 45,
     fontWeight: "bold",
   },
+  doneContainer: {
+    paddingHorizontal: 16,
+  },
   doneButton: {
     backgroundColor: colors.MainColor,
     marginTop: 50,
     borderRadius: 30,
     padding: 15,
-    width: "90%",
-    alignSelf: "center",
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8
+    width: "100%",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
   },
   doneButtonText: {
-    color: "white",
+    color: "#fff",
     fontFamily: "DMSansBold",
     fontSize: 20,
     textAlign: "center",
+    fontFamily: "DMSans",
   },
   navButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 25,
+    paddingHorizontal: 16,
   },
   navButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     borderRadius: 30,
     padding: 15,
     width: "45%",
     backgroundColor: "#f0f0f0",
+    elevation: 2,
+    marginBottom: 48,
   },
   disabledButton: {
     opacity: 0.5,

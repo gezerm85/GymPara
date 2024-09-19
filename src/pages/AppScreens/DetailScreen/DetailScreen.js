@@ -19,13 +19,11 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 const DetailScreen = () => {
   const { item } = useRoute().params;
 
-  
-
   const nav = useNavigation();
 
-  const handleOnPress = ()=>{
-    nav.navigate("FitScreen", {  item }) 
-  }
+  const handleOnPress = () => {
+    nav.navigate("FitScreen", { item });
+  };
 
   const handleOnGoBack = () => {
     Vibration.vibrate(25);
@@ -37,7 +35,7 @@ const DetailScreen = () => {
       <ImageBackground
         style={styles.header}
         imageStyle={styles.img}
-        source={{uri: item.image}}
+        source={{ uri: item.image }}
       >
         <TouchableOpacity style={styles.backBtn} onPress={handleOnGoBack}>
           <AntDesign name="arrowleft" size={24} color="#fff" />
@@ -62,17 +60,17 @@ const DetailScreen = () => {
           </View>
         </View>
         <View style={styles.bottomContainer}>
-        <Text style={styles.exerciseText}>Egzersizler</Text>
-        <FlatList
-          data={item.exercises}
-          renderItem={({item})=><DetailCard item={item} />}
-          keyExtractor={(item)=>item.id.toString()}
-          contentContainerStyle={{gap: 16}}
-          showsVerticalScrollIndicator={false}
-        />
-        <TouchableOpacity onPress={handleOnPress} style={styles.btnBox}>
-          <Text style={styles.btnText}>Başlat</Text>
-        </TouchableOpacity>
+          <Text style={styles.exerciseText}>Egzersizler</Text>
+          <FlatList
+            data={item.exercises}
+            renderItem={({ item }) => <DetailCard item={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ gap: 16 }}
+            showsVerticalScrollIndicator={false}
+          />
+          <TouchableOpacity onPress={handleOnPress} style={styles.btnBox}>
+            <Text style={styles.btnText}>Başlat</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -94,7 +92,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "space-between",
-    position: 'relative'
+    position: "relative",
   },
   img: {
     width: "100%",
@@ -141,13 +139,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
     width: "80%",
-    fontFamily: 'DMSans'
+    fontFamily: "DMSans",
   },
-  timeBox:{
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    justifyContent: 'center',
-    backgroundColor: '#E8F2FE',
+  timeBox: {
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    justifyContent: "center",
+    backgroundColor: "#E8F2FE",
     paddingVertical: 8,
     paddingHorizontal: 16,
     gap: 14,
@@ -155,36 +153,36 @@ const styles = StyleSheet.create({
     elevation: 1,
     marginTop: 16,
   },
-  time:{
-    fontFamily: 'DMSansBold',
-    textAlignVertical: 'center',
+  time: {
+    fontFamily: "DMSansBold",
+    textAlignVertical: "center",
     fontSize: 16,
-    color: colors.MainColor
+    color: colors.MainColor,
   },
-  bottomContainer:{
-    width: '100%',
-    height: '80%',
+  bottomContainer: {
+    width: "100%",
+    height: "80%",
     paddingHorizontal: 16,
     paddingTop: 10,
   },
-  exerciseText:{
-    fontFamily:'DMSansBold',
-    color: '#2b2b2b',
+  exerciseText: {
+    fontFamily: "DMSansBold",
+    color: "#2b2b2b",
     fontSize: 20,
     marginBottom: 16,
   },
-  btnBox:{
+  btnBox: {
     backgroundColor: colors.MainColor,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
     marginTop: 10,
     marginBottom: 16,
-    borderRadius: 16
+    borderRadius: 48,
   },
-  btnText:{
-    fontFamily: 'DMSansBold',
+  btnText: {
+    fontFamily: "DMSansBold",
     fontSize: 24,
-    color: '#fff'
+    color: "#fff",
   },
 });

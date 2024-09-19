@@ -11,11 +11,10 @@ const Tab = createBottomTabNavigator();
 
 function MainBottomTabs() {
   const getTabBarVisibility = (route) => {
+    const hiddenScreens = ["FitScreen", "DetailScreen", "RestScreen"];
     const routeName = getFocusedRouteNameFromRoute(route);
-    if (routeName === "DetailScreen") {
-      return "none";
-    }
-    return "flex";
+
+    return hiddenScreens.includes(routeName) ? "none" : "flex";
   };
 
   return (
@@ -46,7 +45,7 @@ function MainBottomTabs() {
               )}
             </View>
           ),
-          title: ()=> null,
+          title: () => null,
         })}
         name="Home"
         component={MainStack}
@@ -76,7 +75,7 @@ function MainBottomTabs() {
               )}
             </View>
           ),
-          title: ()=> null,
+          title: () => null,
           headerTitle: "Profil",
         })}
         name="ProfileScreen"
