@@ -21,17 +21,17 @@ const SportsCard = ({ item }) => {
   return (
     <TouchableOpacity onPress={handleOnPress} style={styles.container}>
       <ImageBackground
-        source={item.img}
+        source={{uri: item.image}}
         style={styles.img}
         imageStyle={styles.imageRadius}
       >
         <View style={styles.innerContainer}>
-          <Text style={styles.title}>{item.level}</Text>
-          <Text style={styles.desc}>{item.desc}</Text>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.desc}>{item.description}</Text>
         </View>
-        <View style={styles.box}>
+        {/* <View style={styles.box}>
           <Text style={styles.pro}>{item.pro}</Text>
-        </View>
+        </View> */}
       </ImageBackground>
     </TouchableOpacity>
   );

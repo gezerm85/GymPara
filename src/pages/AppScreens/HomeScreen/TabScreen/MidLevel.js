@@ -1,16 +1,16 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
 import SportsCard from "../../../../components/Cards/SportsCard/SportsCard";
-import data from "../../../../data/data";
+import fitness from "../../../../data/fitness";
 
 const MidLevel = () => {
   const renderItem = ({ item }) => <SportsCard item={item} />;
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
+        data={fitness}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );
