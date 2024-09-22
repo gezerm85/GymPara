@@ -21,12 +21,10 @@ const WelcomeStack = () => {
       screenOptions={{
         headerBackTitleVisible: false,
         headerLeft: () => <BackCard />,
-        headerStyle: {
-          elevation: 0,
-          shadowOpacity: 0,
-          borderBottomWidth: 0,
+        headerStyle:{
           backgroundColor: "#fff",
         },
+        headerShadowVisible: false
       }}
     >
       <Stack.Screen
