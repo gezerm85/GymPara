@@ -1,0 +1,6 @@
+module Pods_GymPara {
+  umbrella header "Pods-GymPara-umbrella.h"
+
+  export *
+  module * { export * }
+}
