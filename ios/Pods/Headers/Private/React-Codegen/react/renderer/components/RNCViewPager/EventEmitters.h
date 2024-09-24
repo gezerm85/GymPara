@@ -1,1 +1,0 @@
-../../../../../../../../build/generated/ios/react/renderer/components/RNCViewPager/EventEmitters.h
