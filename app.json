@@ -13,14 +13,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mobiflex.gympara"
+      "bundleIdentifier": "com.gympara.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.mobiflex.gympara"
+      "package": "com.gympara.app"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
