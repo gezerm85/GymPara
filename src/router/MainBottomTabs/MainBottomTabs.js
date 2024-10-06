@@ -1,85 +1,106 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MainStack from "../MainStack/MainStack";
-import ProfileScreen from "../../pages/AppScreens/ProfileScreen/ProfileScreen";
+import AnalysisScreen from "../../pages/AppScreens/AnalysisScreen/AnalysisScreen";
+import StoreScreen from "../../pages/AppScreens/StoreScreen/StoreScreen";
+import GiftScreen from "../../pages/AppScreens/GiftScreen/GiftScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { View, Text } from "react-native";
-import { colors } from "../../utils/Colors/Color";
+import TabBarIcon from "../../components/TabBarIcon/TabBarIcon";
+import HeaderProfile from "../../components/HeaderProfile/HeaderProfile";
 
 const Tab = createBottomTabNavigator();
 
+const getTabBarVisibility = (route) => {
+  const hiddenScreens = ["FitScreen", "DetailScreen", "RestScreen", "ProfileScreen"];
+  const routeName = getFocusedRouteNameFromRoute(route);
+  return hiddenScreens.includes(routeName) ? "none" : "flex";
+};
+
 function MainBottomTabs() {
-  const getTabBarVisibility = (route) => {
-    const hiddenScreens = ["FitScreen", "DetailScreen", "RestScreen"];
-    const routeName = getFocusedRouteNameFromRoute(route);
-
-    return hiddenScreens.includes(routeName) ? "none" : "flex";
-  };
-
   return (
-    <Tab.Navigator>
+    <Tab.Navigator 
+      screenOptions={({ route }) => ({
+        headerTitleAlign: 'center',
+        tabBarStyle: {
+          height: 65, 
+          backgroundColor: '#fff', 
+          display: getTabBarVisibility(route)
+        },
+        tabBarLabelStyle: {
+          marginBottom: 10,
+        },
+        headerLeftContainerStyle:{
+          left: 16,
+        }
+      })}>
+      {/* Home Screen */}
       <Tab.Screen
-        options={({ route }) => ({
-          headerShown: false,
-          tabBarStyle: {
-            display: getTabBarVisibility(route),
-          },
-          tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center" }}>
-              <MaterialCommunityIcons
-                name="home-variant"
-                size={24}
-                color={focused ? colors.MainColor : "#9CA3AF"}
-              />
-              {focused && (
-                <View
-                  style={{
-                    height: 3,
-                    backgroundColor: colors.MainColor,
-                    width: 16,
-                    marginTop: 4,
-                    borderRadius: 20,
-                  }}
-                />
-              )}
-            </View>
-          ),
-          title: () => null,
-        })}
         name="Home"
         component={MainStack}
-      />
-      <Tab.Screen
-        options={({ route }) => ({
-          tabBarStyle: {
-            display: getTabBarVisibility(route),
-          },
+        options={{
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center" }}>
-              <FontAwesome5
-                name="user-alt"
-                size={24}
-                color={focused ? colors.MainColor : "#9CA3AF"}
-              />
-              {focused && (
-                <View
-                  style={{
-                    height: 3,
-                    backgroundColor: colors.MainColor,
-                    width: 16,
-                    marginTop: 4,
-                    borderRadius: 20,
-                  }}
-                />
-              )}
-            </View>
+            <TabBarIcon
+              focused={focused}
+              activeIcon={require("../../assets/images/BottomNav/Home.png")}
+              inactiveIcon={require("../../assets/images/BottomNav/Home1.png")}
+            />
           ),
-          title: () => null,
-          headerTitle: "Profil",
-        })}
-        name="ProfileScreen"
-        component={ProfileScreen}
+          title: 'Anasayfa',
+        }}
+      />
+
+      {/* Analysis Screen */}
+      <Tab.Screen
+        name="AnalysisScreen"
+        component={AnalysisScreen}
+        options={{
+          headerTitle: "Analizler",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              activeIcon={require("../../assets/images/BottomNav/Analiz.png")}
+              inactiveIcon={require("../../assets/images/BottomNav/analysis1.png")}
+            />
+          ),
+          title: 'Analizler',
+          headerLeft:()=><HeaderProfile/>,
+        }}
+      />
+
+      {/* Store Screen */}
+      <Tab.Screen
+        name="StoreScreen"
+        component={StoreScreen}
+        options={{
+          headerTitle: "Mağaza",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              activeIcon={require("../../assets/images/BottomNav/store.png")}
+              inactiveIcon={require("../../assets/images/BottomNav/Store1.png")}
+            />
+          ),
+          title: 'Mağaza',
+          headerLeft:()=><HeaderProfile/>,
+        }}
+      />
+
+      {/* Gift Screen */}
+      <Tab.Screen
+        name="GiftScreen"
+        component={GiftScreen}
+        options={{
+          headerTitle: "Bonuslar",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              activeIcon={require("../../assets/images/BottomNav/Gift.png")}
+              inactiveIcon={require("../../assets/images/BottomNav/Gift1.png")}
+            />
+          ),
+          title: 'Bonuslar',
+          headerLeft:()=><HeaderProfile/>,
+        }}
       />
     </Tab.Navigator>
   );

@@ -18,6 +18,6 @@ export default styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 20.83,
     textAlign: "center",
-    fontFamily: "DMSans",
+    fontFamily: "Medium",
   },
 });

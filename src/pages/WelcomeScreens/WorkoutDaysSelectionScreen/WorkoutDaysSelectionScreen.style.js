@@ -11,7 +11,7 @@ export default styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   title: {
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     fontSize: 24,
     lineHeight: 30.79,
     textAlign: "center",

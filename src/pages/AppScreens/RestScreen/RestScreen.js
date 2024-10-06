@@ -2,70 +2,66 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { Image, Text, StyleSheet, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../../../utils/Colors/Color";
 
 const RestScreen = () => {
-  const { item } = useRoute().params;
+  const { item, currentIndex, total } = useRoute().params;
   const navigation = useNavigation();
   const [timeLeft, setTimeLeft] = useState(20);
   let timer;
 
-  const startTime = () => {
-    timer = setTimeout(() => {
-      if (timeLeft <= 0) {
-        navigation.goBack();
-        clearTimeout(timer);
-      } else {
-        setTimeLeft(timeLeft - 1);
-      }
-    }, 1000);
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
   useEffect(() => {
-    startTime();
+    timer = setInterval(() => {
+      setTimeLeft(prevTime => {
+        if (prevTime <= 1) {
+          clearInterval(timer); 
+          navigation.goBack(); 
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [timeLeft]);
+    return () => clearInterval(timer);
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image
-        source={{
-          uri: "https://img.freepik.com/free-photo/full-length-athlete-sipping-water-from-fitness-bottle-exhausted-after-workout_1098-18878.jpg?w=360&t=st=1689099570~exp=1689100170~hmac=a60d176d8a393f59b8b032dd294005ceedbd048a04c01e542bcffa815ecd4428",
-        }}
-        style={styles.image}
-      />
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>
-          <Text style={styles.text}>Sıradaki:</Text> {item?.name}
-        </Text>
-        <Text style={styles.set}>
-          <Text style={styles.text}>Set:</Text> {item?.sets}
-        </Text>
-      </View>
-      <View>
-        <Text style={styles.breakText}>DİNLEN</Text>
-      </View>
+      <Image source={{ uri: item.image }} style={styles.image} />
+      <View style={styles.bodyContainer}>
+        <Text style={styles.currentIndex}>{`Sıradaki ${currentIndex}/${total}`}</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{item?.name}</Text>
+          <Text style={styles.set}>X {item?.sets}</Text>
+        </View>
+        <View>
+          <Text style={styles.breakText}>Dinlenin</Text>
+        </View>
 
-      <View style={styles.timerBox}>
-        <MaterialIcons name="timer" size={26} color="black" />
-        <Text style={styles.timerText}>{timeLeft}</Text>
-      </View>
-      <View style={styles.btnContainer}>
-        <TouchableOpacity
-          onPress={() => setTimeLeft(timeLeft + 20)}
-          style={styles.navButton}
-        >
-          <Text style={styles.navButtonText}>+ 20</Text>
-        </TouchableOpacity>
+        <View style={styles.timerBox}>
+          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+        </View>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity
+            onPress={() => setTimeLeft(prevTime => prevTime + 20)}
+            style={styles.increaseButton}
+          >
+            <Text style={styles.increaseButtonText}>+ 20</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.navButton}
-        >
-          <Text style={styles.navButtonText}>ATLA</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.skipButton}
+          >
+            <Text style={styles.skipButtonText}>ATLA</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -74,42 +70,54 @@ const RestScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor:'#ffffff'
   },
   image: {
     width: "100%",
     height: "40%",
-    resizeMode: 'cover',
+    resizeMode: "cover",
+  },
+  bodyContainer:{
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    borderTopRightRadius: 36,
+    borderTopLeftRadius: 36,
+  },
+  currentIndex:{
+    fontFamily: 'Bold',
+    fontSize: 14,
+    width: '100%',
+    paddingLeft: 16,
   },
   titleContainer: {
     width: "100%",
-    paddingLeft: 16,
+    paddingHorizontal: 16,
     gap: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   title: {
-    fontSize: 24,
-    fontFamily: "DMSansBold",
+    fontSize: 16,
+    fontFamily: "Medium",
     color: "#000",
   },
   set: {
-    fontSize: 20,
-    fontFamily: "DMSansBold",
+    fontSize: 16,
+    fontFamily: "SemiBold",
     color: "#000",
-  },
-  text:{
-    color: colors.MainColor
+    textAlignVertical: "center",
   },
   breakText: {
     fontSize: 30,
-    fontWeight: "900",
     marginTop: 50,
     textAlign: "center",
+    fontFamily: "Bold",
   },
   timerText: {
     fontSize: 35,
-    fontWeight: "900",
     textAlign: "center",
+    fontFamily: "SemiBold",
   },
   timerBox: {
     flexDirection: "row",
@@ -125,19 +133,32 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 48,
   },
-  navButton: {
+  increaseButton: {
+    width: "100%",
+    backgroundColor: "#E8F2FE",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    borderRadius: 64,
+  },
+  skipButton: {
     width: "100%",
     backgroundColor: colors.MainColor,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 16,
-    borderRadius: 32,
+    borderRadius: 64,
+    marginBottom: 98,
   },
-  navButtonText: {
-    fontSize: 18,
-    fontFamily: "DMSans",
-    fontWeight: "600",
+  skipButtonText: {
+    fontSize: 14,
+    fontFamily: "SemiBold",
     color: "#fff",
+  },
+  increaseButtonText: {
+    fontSize: 14,
+    fontFamily: "SemiBold",
+    color: colors.MainColor,
   },
 });
 

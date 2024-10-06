@@ -2,9 +2,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useState } from "react";
 import { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { Octicons } from "@expo/vector-icons";
 import { colors } from "../../../utils/Colors/Color";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 const FitScreen = () => {
   const route = useRoute();
@@ -13,55 +12,58 @@ const FitScreen = () => {
   const exercise = route.params.item.exercises;
   const current = exercise[index];
 
+  console.log(current);
+  
   const handleDonePress = () => {
     if (index + 1 >= exercise.length) {
       navigation.navigate("HomeScreen");
     } else {
-      navigation.navigate("RestScreen", { item: exercise[index + 1] });
+      navigation.navigate("RestScreen", { 
+        item: exercise[index + 1],
+        currentIndex: index + 2,
+        total: exercise.length
+      });
       setTimeout(() => {
         setIndex(index + 1);
       }, 2000);
     }
   };
-
+  
   const handleOnPrevPress = () => {
-    navigation.navigate("RestScreen", { item: exercise[index - 1] });
-    setTimeout(() => {
+    if (index > 0) {
+      navigation.navigate("RestScreen", { 
+        item: exercise[index - 1],
+        total: exercise.length, 
+        currentIndex: index - 1
+      });
       setIndex(index - 1);
-    }, 2000);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Image style={styles.image} source={{ uri: current?.image }} />
+      <View style={styles.bodyContainer}>
+        <Text style={styles.exerciseName}>{current?.name}</Text>
 
-      <Text style={styles.exerciseName}>{current?.name}</Text>
+        <Text style={styles.sets}>X{current?.sets}</Text>
 
-      <Text style={styles.sets}>x{current?.sets}</Text>
-
-      {/* Done Button */}
-      <View style={styles.doneContainer}>
-        <TouchableOpacity onPress={handleDonePress} style={styles.doneButton}>
-          <Ionicons name="checkmark-circle" size={24} color="#fff" />
-          <Text style={styles.doneButtonText}>BİTİR</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Previous & Skip Buttons */}
-      <View style={styles.navButtonsContainer}>
-        <TouchableOpacity
-          disabled={index === 0}
-          onPress={handleOnPrevPress}
-          style={[styles.navButton, index === 0 && styles.disabledButton]}
-        >
-          <Ionicons name="play-skip-back" size={22} color="#6d6868" />
-          <Text style={styles.navButtonText}>ÖNCEKİ</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleDonePress} style={styles.navButton}>
-          <Ionicons name="play-skip-forward" size={22} color="#3f3d3d" />
-          <Text style={styles.navButtonText}>SIRADAKİ</Text>
-        </TouchableOpacity>
+        {/* Done Button */}
+        <View style={styles.doneContainer}>
+          <TouchableOpacity
+            disabled={index === 0}
+            onPress={handleOnPrevPress}
+            style={[styles.navButton, index === 0 && styles.disabledButton]}
+          >
+            <FontAwesome5 name="step-backward" size={24} color="#AEAEB2" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleDonePress} style={styles.doneButton}>
+            <Text style={styles.doneButtonText}>BİTİR</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleDonePress} style={styles.navButton}>
+            <FontAwesome5 name="step-forward" size={24} color="#AEAEB2" />
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -71,72 +73,67 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "space-between",
   },
   image: {
     width: "100%",
     height: 400,
     borderRadius: 10,
+    resizeMode: 'cover',
+  },
+  bodyContainer:{
+    flex: 1,
+    backgroundColor: '#fff',
+    borderTopRightRadius: 36,
+    borderTopLeftRadius: 36,
+    justifyContent: 'center',
+    marginBottom: 98,
   },
   exerciseName: {
-    marginTop: 30,
     textAlign: "center",
     fontSize: 30,
-    fontWeight: "bold",
+    fontFamily: "Bold",
+    marginBottom: 16,
   },
   sets: {
-    marginTop: 10,
     textAlign: "center",
-    fontSize: 45,
-    fontWeight: "bold",
+    fontSize: 44,
+    fontFamily: "SemiBold",
+    marginBottom: 36,
   },
   doneContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
   },
   doneButton: {
     backgroundColor: colors.MainColor,
-    marginTop: 50,
-    borderRadius: 30,
-    padding: 15,
-    width: "100%",
+    borderRadius: 24,
+    paddingHorizontal: 64,
+    paddingVertical: 16,
     alignItems: "center",
-    flexDirection: "row",
     justifyContent: "center",
-    gap: 8,
   },
   doneButtonText: {
     color: "#fff",
-    fontFamily: "DMSansBold",
     fontSize: 20,
     textAlign: "center",
-    fontFamily: "DMSans",
-  },
-  navButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 25,
-    paddingHorizontal: 16,
+    fontFamily: "Bold",
   },
   navButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    borderRadius: 30,
-    padding: 15,
-    width: "45%",
-    backgroundColor: "#f0f0f0",
-    elevation: 2,
-    marginBottom: 48,
+    padding: 16,
   },
   disabledButton: {
-    opacity: 0.5,
+    opacity: 0,
   },
   navButtonText: {
     color: "#6d6868",
-    fontWeight: "bold",
     fontSize: 18,
     textAlign: "center",
+    fontFamily: "Bold",
   },
 });
 

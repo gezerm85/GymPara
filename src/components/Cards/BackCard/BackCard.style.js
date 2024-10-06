@@ -10,6 +10,5 @@ export default styles = StyleSheet.create({
     borderRadius: 16,
     width: width * 0.123,
     height: width * 0.123,
-    marginLeft: 16,
   },
 });

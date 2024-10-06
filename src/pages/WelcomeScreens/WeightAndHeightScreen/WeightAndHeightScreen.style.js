@@ -14,7 +14,7 @@ export default styles = StyleSheet.create({
     marginBottom: 62,
   },
   title: {
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     fontSize: 24,
     color: colors.textColor,
     marginTop: 16,

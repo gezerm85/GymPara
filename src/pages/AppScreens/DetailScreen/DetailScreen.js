@@ -116,12 +116,12 @@ const styles = StyleSheet.create({
   level: {
     color: "#fff",
     fontSize: 28,
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
   },
   desc: {
     fontSize: 14,
     color: "#fff",
-    fontFamily: "DMSans",
+    fontFamily: "Regular",
   },
   textBox: {
     gap: 5,
@@ -134,12 +134,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontWeight: "400",
     color: colors.textColor,
     fontSize: 14,
     lineHeight: 21,
     width: "80%",
-    fontFamily: "DMSans",
+    fontFamily: "Regular",
   },
   timeBox: {
     flexDirection: "row",
@@ -154,7 +153,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   time: {
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     textAlignVertical: "center",
     fontSize: 16,
     color: colors.MainColor,
@@ -166,7 +165,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   exerciseText: {
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     color: "#2b2b2b",
     fontSize: 20,
     marginBottom: 16,
@@ -178,10 +177,10 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 10,
     marginBottom: 16,
-    borderRadius: 48,
+    borderRadius: 42,
   },
   btnText: {
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     fontSize: 24,
     color: "#fff",
   },

@@ -40,13 +40,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   title: {
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     fontSize: 16,
     color: "#454545",
   },
   set: {
-    fontFamily: "DMSans",
-    fontWeight: "500",
+    fontFamily: "Medium",
     fontSize: 14,
     color: "#c4c4c4",
   },

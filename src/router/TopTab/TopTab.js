@@ -3,11 +3,10 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import StartLevel from "../../pages/AppScreens/HomeScreen/TabScreen/StartLevel";
 import MidLevel from "../../pages/AppScreens/HomeScreen/TabScreen/MidLevel";
 import ExpertLevel from "../../pages/AppScreens/HomeScreen/TabScreen/ExpertLevel";
-import { Text, StyleSheet, } from "react-native";
+import { Text, StyleSheet, View } from "react-native";
 import { colors } from "../../utils/Colors/Color";
 
 const TopTab = createMaterialTopTabNavigator();
-
 
 function TopTabs() {
   return (
@@ -15,41 +14,63 @@ function TopTabs() {
       screenOptions={({ route }) => ({
         tabBarLabel: ({ focused }) => {
           let label = "";
+          let emoji = "";
+
           if (route.name === "StartLevel") {
-            label = "Başlangıç";
+            label = "Başlangıç düzey";
+            emoji = "🐣";
           } else if (route.name === "MidLevel") {
             label = "Orta Seviye";
+            emoji = "💦";
           } else if (route.name === "ExpertLevel") {
             label = "İleri Seviye";
+            emoji = "🔥";
           }
 
           return (
-            <Text
+            <View
               style={[
+                styles.labelBox,
                 {
-                  color: focused ? "#fff" : colors.MainColor,
-                  fontSize: 16,
+                  backgroundColor: focused ? colors.MainColor : "#fff",
+                  borderRadius: 24,
+                  paddingVertical: 11,
+                  paddingHorizontal: 12,
                 },
-                styles.label,
               ]}
             >
-              {label}
-            </Text>
+              <Text
+                style={[
+                  {
+                    color: focused ? "#fff" : colors.MainColor,
+                    fontSize: 16,
+                    textAlign: "center",
+                  },
+                  styles.label,
+                ]}
+              >
+                {emoji} {label}
+              </Text>
+            </View>
           );
         },
         tabBarIndicatorStyle: {
-          backgroundColor: colors.MainColor,
           height: "100%",
           borderRadius: 24,
+          backgroundColor: '#fff'
         },
         tabBarStyle: {
-          backgroundColor: "#f3f3f3",
+          backgroundColor: "#fff",
           borderRadius: 24,
-          marginHorizontal: 16,
           elevation: 0,
           shadowOpacity: 0,
         },
-        tabBarPressColor: "transparent",
+        tabBarPressColor: "#ffffff00",
+        tabBarItemStyle:{
+          width: 'auto',
+        },
+        tabBarScrollEnabled: true
+
       })}
     >
       <TopTab.Screen name="StartLevel" component={StartLevel} />
@@ -63,9 +84,15 @@ export default TopTabs;
 
 const styles = StyleSheet.create({
   label: {
-    fontWeight: "600",
     fontSize: 14,
     lineHeight: 16,
-    fontFamily: "DMSans",
+    fontFamily: "SemiBold",
+    width: "100%",
+    alignSelf: "center",
+  },
+  labelBox: {
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

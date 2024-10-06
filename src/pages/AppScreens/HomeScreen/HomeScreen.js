@@ -20,7 +20,6 @@ const HomeScreen = () => {
 
   const today = new Date().getDate();
 
-  const days = new Date().getDate();
 
   const [completedDays, setCompletedDays] = useState([]);
 
@@ -36,7 +35,6 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <WeeklyGoal completedDays={completedDays} />
       </View>
       <View style={styles.bodyContainer}>
         <TopTabs />
@@ -54,7 +52,8 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     flex: 5,
-    marginBottom: 16
+    marginBottom: 16,
+    
   },
   innerContainer: {
     flex: 1,

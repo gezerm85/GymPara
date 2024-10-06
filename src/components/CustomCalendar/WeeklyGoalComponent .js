@@ -5,8 +5,6 @@ import { colors } from "../../utils/Colors/Color";
 import { useSelector } from "react-redux";
 
 const WeeklyGoal = ({
-  goalsCompleted = 1,
-  totalGoals = 3,
   completedDays = [],
 }) => {
   const today = new Date();
@@ -95,23 +93,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 18,
     lineHeight: 19.07,
     color: colors.textColor,
-    fontFamily: "DMSans",
+    fontFamily: "Bold",
   },
   goal: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#007aff",
-    fontWeight: "600",
-    fontFamily: "DMSans",
+    fontFamily: "SemiBold"
   },
   goal2: {
-    fontSize: 12,
+    fontSize: 18,
     color: colors.textColor,
-    fontWeight: "600",
-    fontFamily: "DMSans",
+    fontFamily: "SemiBold",
   },
   daysContainer: {
     flexDirection: "row",
@@ -131,22 +126,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dayText: {
-    color: "#7f7f7f",
-    fontSize: 14,
-    fontWeight: "500",
+    color: "#7F7F7F",
+    fontSize: 16,
     lineHeight: 21,
-    fontFamily: "DMSans",
+    fontFamily: "Medium",
     width: 28,
     height: 28,
     textAlign: "center",
     textAlignVertical: "center",
+    backgroundColor: '#E9E9EA',
+    borderRadius: 40,
   },
   todayText: {
-    color: colors.MainColor,
-    fontSize: 14,
-    fontWeight: "bold",
-    fontFamily: "DMSans",
-    fontWeight: "500",
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: "Medium",
+    backgroundColor: colors.MainColor,
+    borderRadius: 16
   },
 });
 

@@ -15,7 +15,7 @@ export default styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 30.79,
     textAlign: "center",
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     marginTop: 16,
   },
   bodyContainer: {
@@ -37,13 +37,13 @@ export default styles = StyleSheet.create({
     fontSize: 34,
     color: "#CCCBD0",
     textAlign: "center",
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
   },
   selectedText: {
     fontSize: 34,
     color: colors.MainColor,
     textAlign: "center",
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
   },
   selectedIndicator: {
     position: "absolute",

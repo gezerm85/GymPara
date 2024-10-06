@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     lineHeight: 30.79,
     marginTop: 100,
     width: width * 0.7,
@@ -73,9 +73,8 @@ const styles = StyleSheet.create({
   },
   completionText: {
     fontSize: 16,
-    fontWeight: "400",
     color: colors.textColor,
-    fontFamily: "DMSans",
+    fontFamily: "Regular",
     lineHeight: 25.6,
     textAlign: "center",
     width: width * 0.9,

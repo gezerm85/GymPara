@@ -17,7 +17,7 @@ export default styles = StyleSheet.create({
     lineHeight: 30.79,
     textAlign: "center",
     marginTop: 16,
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
   },
   buttonBox: {
     marginBottom: 62,

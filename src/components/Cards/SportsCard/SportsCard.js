@@ -2,13 +2,13 @@ import {
   StyleSheet,
   Text,
   View,
-  ImageBackground,
-  Dimensions,
   TouchableOpacity,
+  Image
 } from "react-native";
 import React from "react";
 import { colors } from "../../../utils/Colors/Color";
 import { useNavigation } from "@react-navigation/native";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 const SportsCard = ({ item }) => {
   const nav = useNavigation();
@@ -20,41 +20,69 @@ const SportsCard = ({ item }) => {
   };
   return (
     <TouchableOpacity onPress={handleOnPress} style={styles.container}>
-      <ImageBackground
-        source={{uri: item.image}}
-        style={styles.img}
-        imageStyle={styles.imageRadius}
+      <View
+        style={styles.bodyContainer}
       >
-        <View style={styles.innerContainer}>
+          <Image 
+            source={{uri: item.image}}
+            style={styles.img}
+          />
+      </View>
+      <View style={styles.innerContainer}>
           <Text style={styles.title}>{item.name}</Text>
-          <Text style={styles.desc}>{item.description}</Text>
+          <View style={styles.timeContainer}>
+          <View style={styles.blueBar} />
+          <Text style={styles.time}>{item.time || "18"}</Text>
         </View>
-        {/* <View style={styles.box}>
-          <Text style={styles.pro}>{item.pro}</Text>
-        </View> */}
-      </ImageBackground>
+        </View>
+        <View style={styles.iconBox}>
+        <Icon
+            name="arrow-right" 
+            size={24}
+            color={colors.MainColor}
+            style={styles.icon}
+          />
+        </View>
     </TouchableOpacity>
   );
 };
 
 export default SportsCard;
 
-const { width, height } = Dimensions.get("window");
 
 
 const styles = StyleSheet.create({
   container: {
-    width: width * 0.917,
-    height: height * 0.1951,
-    marginTop: 16,
+    width: '100%',
+    height: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
   },
-  imageRadius: {
-    borderRadius: height * 0.02,
+  bodyContainer:{
+    width: '20%',
+    height: '100%',
   },
   innerContainer: {
-    gap: 4,
-    marginBottom: 16,
-    marginLeft: 16,
+    width: '60%',
+    height: '100%',
+    alignItems: 'start',
+    justifyContent: 'space-between',
+    paddingLeft: 12,
+    paddingVertical: 2,
+
+  },
+  iconBox:{
+    width: '20%',
+    height: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  icon:{
+    backgroundColor: '#D8E9FE',
+    padding: 8,
+    borderRadius: 40,
   },
   img: {
     width: "100%",
@@ -62,21 +90,31 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     justifyContent: "space-between",
     flexDirection: "row",
-    resizeMode: "contain",
+    resizeMode: "cover",
+    borderRadius: 16,
   },
   title: {
-    fontFamily: "DMSans",
-    fontWeight: "600",
-    fontSize: 17,
+    fontFamily: "SemiBold",
+    fontSize: 16,
     lineHeight: 23.15,
-    color: "#fff",
+    color: "#000000",
   },
-  desc: {
-    fontFamily: "DMSans",
-    fontWeight: "400",
-    fontSize: 13,
+  time: {
+    fontFamily: "Regular",
+    fontSize: 14,
     lineHeight: 16,
-    color: "#fff",
+    color: "#000000",
+    top: 2,
+  },
+  timeContainer: {
+    flexDirection: "row", 
+    alignItems: "center",
+  },
+  blueBar: {
+    width: 2, 
+    height: "100%",
+    backgroundColor: colors.MainColor, 
+    marginRight: 4,
   },
   box: {
     paddingHorizontal: 8,
@@ -88,10 +126,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  pro: {
-    fontFamily: "DMSansBold",
-    fontSize: 11,
-    lineHeight: 13,
-    color: colors.MainColor,
-  },
+ 
 });

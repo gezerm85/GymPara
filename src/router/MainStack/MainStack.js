@@ -4,8 +4,10 @@ import HomeScreen from "../../pages/AppScreens/HomeScreen/HomeScreen";
 import DetailScreen from "../../pages/AppScreens/DetailScreen/DetailScreen";
 import FitScreen from "../../pages/AppScreens/FitScreen/FitScreen";
 import RestScreen from "../../pages/AppScreens/RestScreen/RestScreen";
-import { Text } from "react-native";
-import { colors } from "../../utils/Colors/Color";
+import HeaderTitle from "../../components/HeaderTitle/HeaderTitle";
+import HeaderProfile from "../../components/HeaderProfile/HeaderProfile";
+import ScoreComp from "../../components/ScoreComp/ScoreComp";
+import ProfileScreen from "../../pages/AppScreens/ProfileScreen/ProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,20 +16,22 @@ const MainStack = () => {
     <Stack.Navigator>
       <Stack.Screen
         options={{
-          headerTitle: () => (
-            <Text
-              style={{
-                fontWeight: "900",
-                fontFamily: "DMSans",
-                fontSize: 24,
-              }}
-            >
-              Gym<Text style={{ color: colors.MainColor }}>App</Text>
-            </Text>
-          ),
+          headerTitle: () => <HeaderTitle/>,
+          headerTitleAlign: 'center',
+          headerLeft:()=> <HeaderProfile/>,
+          headerRight:()=> <ScoreComp/>
         }}
         name="HomeScreen"
         component={HomeScreen}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: "Profil",
+          headerTitleAlign: 'center',
+          headerRight:()=> <ScoreComp/>,
+        }}
+        name="ProfileScreen"
+        component={ProfileScreen}
       />
       <Stack.Screen
         options={{

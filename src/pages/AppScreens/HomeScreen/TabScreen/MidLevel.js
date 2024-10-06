@@ -11,6 +11,7 @@ const MidLevel = () => {
         data={fitness}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{gap: 16}}
       />
     </View>
   );
@@ -24,5 +25,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: 16,
+    paddingHorizontal: 16,
+
   },
 });

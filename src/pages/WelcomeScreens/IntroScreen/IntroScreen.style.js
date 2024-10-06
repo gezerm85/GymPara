@@ -15,17 +15,17 @@ export default styles = StyleSheet.create({
     textAlign: "center",
     width: width * 0.8,
     marginBottom: 16,
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
+    
   },
   desc: {
     color: "#fff",
-    fontWeight: "400",
     fontSize: 16,
     lineHeight: 25.6,
     textAlign: "center",
     marginBottom: 26,
     width: width * 0.9,
-    fontFamily: "DMSans",
+    fontFamily: "Regular",
   },
   buttonBox: {
     marginBottom: 51,

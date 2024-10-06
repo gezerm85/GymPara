@@ -140,8 +140,7 @@ const styles = StyleSheet.create({
   },
   title: {
     width: width,
-    fontFamily: "DMSans",
-    fontWeight: "700",
+    fontFamily: "SemiBold",
     fontSize: 16,
     textAlign: "left",
     paddingLeft: 16,
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     right: width * 0.003,
     color: "#8D8F8F",
     fontSize: 14,
-    fontFamily: "DMSans",
+    fontFamily: "SemiBold",
     width: width * 0.07,
   },
   scrollViewContainerStyle: {
@@ -186,16 +185,14 @@ const styles = StyleSheet.create({
   weightTextStyle: {
     fontSize: 22,
     color: colors.MainColor,
-    fontWeight: "700",
     textAlign: "center",
-    fontFamily: "DMSans",
+    fontFamily: "SemiBold",
   },
   weightText: {
     fontSize: 11,
     color: colors.MainColor,
-    fontWeight: "700",
     textAlign: "center",
-    fontFamily: "DMSans",
+    fontFamily: "SemiBold",
     top: height * 0.005,
   },
   spacer: {

@@ -18,13 +18,11 @@ export default styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   text: {
-    fontFamily: "DMSans",
-    fontWeight: "500",
+    fontFamily: "Medium",
     fontSize: 16,
   },
   textDesc: {
-    fontFamily: "DMSans",
-    fontWeight: "400",
+    fontFamily: "Medium",
     fontSize: 14,
   },
   image: {

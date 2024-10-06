@@ -21,7 +21,7 @@ export default styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 24,
     color: colors.textColor,
-    fontFamily: "DMSansBold",
+    fontFamily: "Bold",
     width: width * 0.8,
     textAlign: "center",
   },

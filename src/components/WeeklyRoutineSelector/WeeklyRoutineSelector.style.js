@@ -19,8 +19,7 @@ export default styles = StyleSheet.create({
   },
   text: {
     textAlign: "center",
-    fontFamily: "DMSans",
-    fontWeight: "500",
+    fontFamily: "Medium",
     fontSize: 16,
     width: width * 0.8,
   },
