@@ -22,7 +22,6 @@ const AnalysisScreen = () => {
       </View>
       <View style={styles.bodyContainer}>
         <SegmentedControl/>
-        <CustomChart/>
       </View>
     </View>
   );
@@ -37,8 +36,7 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     flex: 5,
-    marginBottom: 16,
-    
+    paddingHorizontal: 16,
   },
   innerContainer: {
     flex: 1,

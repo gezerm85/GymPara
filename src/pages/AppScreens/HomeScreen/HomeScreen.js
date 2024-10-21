@@ -1,44 +1,13 @@
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, Modal } from "react-native";
 import React, { useState, useEffect } from "react";
-import TopTabs from "../../../router/TopTab/TopTab";
-import WeeklyGoal from "../../../components/CustomCalendar/WeeklyGoalComponent ";
 import { useSelector, useDispatch } from "react-redux";
-import { loadUserData } from "../../../redux/dataSlice";
+import SportSelection from "../../../components/SportSelection/SportSelection";
+import { BlurView } from "expo-blur";
 
 const HomeScreen = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(loadUserData())
-      .unwrap()
-      .then((data) => {
-        if (data) {
-        }
-      })
-      .catch((error) => {});
-  }, [dispatch]);
-
-  const today = new Date().getDate();
-
-
-  const [completedDays, setCompletedDays] = useState([]);
-
-
-  
-
-  const handleCompleteToday = () => {
-    if (!completedDays.includes(today)) {
-      setCompletedDays([...completedDays, today]);
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <View style={styles.innerContainer}>
-      </View>
-      <View style={styles.bodyContainer}>
-        <TopTabs />
-      </View>
+        <Text>wafasf</Text>
     </View>
   );
 };
@@ -49,11 +18,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   bodyContainer: {
     flex: 5,
     marginBottom: 16,
-    
   },
   innerContainer: {
     flex: 1,
