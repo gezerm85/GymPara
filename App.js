@@ -9,10 +9,12 @@ import { PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 import { auth } from "./src/firebase/firebaseConfig";
 
+
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const fontsLoaded = useAppFonts();
+
 
   if (!fontsLoaded) {
     return null;

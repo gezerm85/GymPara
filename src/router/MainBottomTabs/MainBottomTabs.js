@@ -7,8 +7,9 @@ import GiftScreen from "../../pages/AppScreens/GiftScreen/GiftScreen";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import TabBarIcon from "../../components/TabBarIcon/TabBarIcon";
 import HeaderProfile from "../../components/HeaderProfile/HeaderProfile";
-import TimerButton from "../../components/TimerButton/TimerButton";
-
+import TimerScreen from '../../pages/AppScreens/TimerScreen/TimerScreen'
+import MainButton from '../../components/CustomBottomTabNavigator/MainButton';
+ 
 const Tab = createBottomTabNavigator();
 
 const getTabBarVisibility = (route) => {
@@ -24,18 +25,10 @@ const getTabBarVisibility = (route) => {
 };
 
 function MainBottomTabs() {
-  const [modalVisible, setModalVisible] = useState(false);
 
-  const openModal = () => {
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
 
   return (
-    <>
+
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerTitleAlign: "center",
@@ -89,17 +82,19 @@ function MainBottomTabs() {
           }}
         />
 
-        {/* Timer Button */}
+        {/* Timer Screen */}
         <Tab.Screen
-          name="TimerButton"
+          name='TimerScreen'
+          component={TimerScreen}
           options={{
-            tabBarButton: () => (
-              <TimerButton onPress={openModal} />
-            ),
-          }}
-        >
-          {()=>null}
-        </Tab.Screen>
+          headerTitle: "test",
+            headerLeft: () => <HeaderProfile />,
+            tabBarIcon:()=> <MainButton/>
+            }}
+     
+        />
+ 
+  
 
         {/* Store Screen */}
         <Tab.Screen
@@ -140,7 +135,7 @@ function MainBottomTabs() {
       </Tab.Navigator>
 
 
-    </>
+
   );
 }
 

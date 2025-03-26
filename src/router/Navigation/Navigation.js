@@ -13,15 +13,20 @@ import { loadUserData } from "../../redux/dataSlice";
 import { signIn } from "../../firebase/firebaseAuth"; // Firebase Auth için
 import LoadingScreen from "../../components/LoadingScreen/LoadingScreen"; // Yüklenme ekranı
 import TopTabsNavigator from "../TopTabsNavigator/TopTabsNavigator";
+import { loadFavoritesFromStorage } from "../../redux/FavoriteSlice";
 
 const RootStack = createNativeStackNavigator();
 export const navigationRef = createNavigationContainerRef();
 
 const Navigation = () => {
   const dispatch = useDispatch();
-  const [isCheckingLogin, setIsCheckingLogin] = useState(true); // Otomatik giriş kontrolü
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
 
-  // 🔹 Beni Hatırla Kontrolü: Kullanıcıyı oturum açtır ve yönlendir
+  
+    useEffect(() => {
+      dispatch(loadFavoritesFromStorage());
+    }, []);
+
   useEffect(() => {
     const checkAutoLogin = async () => {
       try {

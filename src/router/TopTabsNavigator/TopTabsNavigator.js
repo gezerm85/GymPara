@@ -3,16 +3,17 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import ActivitiesScreen from "../../pages/TopTabs/ActivitiesScreen";
 import FavoritesScreen from "../../pages/TopTabs/FavoritesScreen";
 
+
 const Tab = createMaterialTopTabNavigator();
 
 const TopTabsNavigator = () => {
   return (
     <Tab.Navigator
     screenOptions={{
-      tabBarActiveTintColor: "white",
+      tabBarActiveTintColor: "#000",
       tabBarInactiveTintColor: "#aaa",
-      tabBarStyle: { backgroundColor: "#007BFF" },
-      tabBarIndicatorStyle: { backgroundColor: "white" },
+      tabBarStyle: { backgroundColor: "#fff" },
+      tabBarIndicatorStyle: { backgroundColor: "#0166FF" },
     }}
   >
     <Tab.Screen name="Aktiviteler" component={ActivitiesScreen} />
