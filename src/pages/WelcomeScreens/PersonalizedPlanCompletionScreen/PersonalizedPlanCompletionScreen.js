@@ -6,11 +6,11 @@ import { colors } from "../../../utils/Colors/Color";
 import CustomButton from "../../../components/CustomButton/CustomButton";
 import Animated, { RotateInUpLeft } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
-import { doc, setDoc } from "firebase/firestore";
-import { firestoreDB, auth } from "../../../firebase/firebaseConfig";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import { setWelcomeCompleted } from '../../../redux/dataSlice';
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
+import { markWelcomeCompleted } from '../../../services/apiAuth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PersonalizedPlanCompletionScreen = () => {
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -19,25 +19,34 @@ const PersonalizedPlanCompletionScreen = () => {
 
   const navigation = useNavigation()
 
-  // 🔹 **Firestore'a kullanıcı verisini kaydet ve 'welcomeCompleted' işaretini güncelle**
+  // 🔹 **API'ye kullanıcı verisini gönder ve 'welcome_completed' işaretini güncelle**
   const handleOnPress = async () => {
     try {
-      const userId = auth.currentUser?.uid;
-      if (!userId) throw new Error("Kullanıcı oturumu açık değil.");
-      console.log(userId);
+      console.log('Welcome completed işaretleniyor...');
       
-      // Kullanıcı verisini ve oturum bilgilerini Firestore'a kaydet
-      await setDoc(doc(firestoreDB, "users", userId), {
-        userInformation: {
-          ...userData,
-        },
-        welcomeCompleted: true, // <-- optimize edildi
-      }, { merge: true });
+      // API'ye welcome_completed: true gönder
+      const result = await markWelcomeCompleted();
+      console.log('API yanıtı:', result);
+      
+      // Redux state'i güncelle
       dispatch(setWelcomeCompleted(true));
-      // navigation veya yönlendirme yok, Navigation.js otomatik olarak geçiş yapacak
+      
+      // AsyncStorage'ı güncelle
+      const currentUserData = await AsyncStorage.getItem('userData');
+      if (currentUserData) {
+        const updatedUserData = {
+          ...JSON.parse(currentUserData),
+          welcome_completed: true
+        };
+        await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+      }
+      
+      console.log("✅ Welcome completed başarıyla işaretlendi");
+      
+      // Navigation.js otomatik olarak ana ekrana yönlendirecek
 
     } catch (error) {
-      console.error("Veri kaydetme hatası:", error);
+      console.error("Veri güncelleme hatası:", error);
     }
   };
 

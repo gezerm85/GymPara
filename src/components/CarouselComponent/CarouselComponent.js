@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View, Dimensions, Image, ActivityIndicator, Button } from 'react-native'
+import { StyleSheet, Text, View, Dimensions, Image, ActivityIndicator, Button, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Carousel from 'react-native-reanimated-carousel'
 import { fetchCarouselData } from '../../redux/carouselSlice'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const { width: screenWidth } = Dimensions.get('window')
 
@@ -19,20 +20,34 @@ const CarouselComponent = () => {
 
   const renderCarouselItem = ({ item, index }) => {
     return (
-      <View style={[
-        styles.carouselItem, 
-        { backgroundColor: item.img ? 'transparent' : item.color }
-      ]}>
-        {item.img ? (
-          <Image 
-            source={{ uri: item.img }} 
-            style={styles.carouselImage}
-            resizeMode="cover"
-          />
-        ) : null}
-        <View style={styles.carouselContent}>
-          <Text style={styles.carouselTitle}>{item.title}</Text>
-          <Text style={styles.carouselDescription}>{item.description}</Text>
+      <View style={styles.carouselItem}>
+        {/* Kırmızı arka plan */}
+        <View style={styles.redBackground}>
+          {/* Sol taraf - Metin içeriği */}
+          <View style={styles.textContainer}>
+            <Text style={styles.mainTitle}>GÜNLÜK BONUS</Text>
+            <View style={styles.bonusTextContainer}>
+              <Text style={styles.bonusText}>İLE </Text>
+              <Text style={styles.bonusAmount}>300GP</Text>
+              <Text style={styles.bonusText}> CEBİNDE</Text>
+            </View>
+            <TouchableOpacity style={styles.bonusLink}>
+              <Text style={styles.linkText}>Tüm Bonusları</Text>
+              <Icon name="chevron-forward" size={16} color="#4A90E2" />
+            </TouchableOpacity>
+          </View>
+          
+          {/* Sağ taraf - 3D ikon alanı */}
+          <View style={styles.iconContainer}>
+            <View style={styles.bottleIcon}>
+              <View style={styles.bottleCap} />
+              <View style={styles.bottleBody}>
+                <View style={styles.lightningBolt}>
+                  <Icon name="flash" size={24} color="#1E3A8A" />
+                </View>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     )
@@ -41,7 +56,7 @@ const CarouselComponent = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#FF4444" />
       </View>
     )
   }
@@ -66,17 +81,18 @@ const CarouselComponent = () => {
   return (
     <Carousel
       loop
-      width={screenWidth}
-      height={200}
+      width={screenWidth - 32}
+      height={160}
       autoPlay={true}
       data={carouselData}
       scrollAnimationDuration={1000}
-      autoPlayInterval={3000}
+      autoPlayInterval={4000}
       renderItem={renderCarouselItem}
       mode="parallax"
       modeConfig={{
-        parallaxScrollingScale: 0.9,
-        parallaxScrollingOffset: 70,
+        parallaxScrollingScale: 1,
+        parallaxScrollingOffset: 50,
+        parallaxAdjacentItemScale: 0.8,
       }}
     />
   )
@@ -86,12 +102,12 @@ export default CarouselComponent
 
 const styles = StyleSheet.create({
   loadingContainer: {
-    height: 200,
+    height: 160,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyStateContainer: {
-    height: 200,
+    height: 160,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -104,49 +120,91 @@ const styles = StyleSheet.create({
   },
   carouselItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
-    marginHorizontal: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  redBackground: {
+    flex: 1,
+    backgroundColor: '#FF4444',
+    flexDirection: 'row',
     padding: 20,
     position: 'relative',
-    overflow: 'hidden',
   },
-  carouselImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%', 
-    height: '100%',  
+  textContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingRight: 20,
   },
-  carouselContent: {
-    position: 'relative',
-    zIndex: 1,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  carouselTitle: {
-    fontSize: 24,   
+  mainTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    color: '#2F2F2F',
     marginBottom: 8,
     fontFamily: 'Bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
   },
-  carouselDescription: {
+  bonusTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  bonusText: {
     fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
-    opacity: 0.9,
+    color: '#2F2F2F',
     fontFamily: 'Medium',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+  },
+  bonusAmount: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0166FF',
+    fontFamily: 'Bold',
+  },
+  bonusLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  linkText: {
+    fontSize: 14,
+    color: '#4A90E2',
+    fontFamily: 'Medium',
+    marginRight: 4,
+  },
+  iconContainer: {
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottleIcon: {
+    width: 50,
+    height: 70,
+    alignItems: 'center',
+  },
+  bottleCap: {
+    width: 30,
+    height: 15,
+    backgroundColor: '#2F2F2F',
+    borderRadius: 15,
+    marginBottom: 2,
+  },
+  bottleBody: {
+    width: 40,
+    height: 50,
+    backgroundColor: '#1E3A8A',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  lightningBolt: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })

@@ -12,12 +12,10 @@ import {
   Platform
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { signIn } from "../../../firebase/firebaseAuth";
+import { loginUser } from "../../../services/apiAuth";
 import Icon from "react-native-vector-icons/Ionicons";
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
 import { CommonActions } from '@react-navigation/native';
-import { doc, getDoc } from "firebase/firestore";
-import { firestoreDB } from "../../../firebase/firebaseConfig";
 import { useDispatch } from "react-redux";
 import { loadUserData } from "../../../redux/dataSlice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -56,9 +54,17 @@ const LoginScreen = () => {
     if (!validateInputs()) return;
     setLoading(true);
     try {
-      const user = await signIn(email, password);
-      if (user) {
-        await dispatch(loadUserData());
+      console.log('Login denemesi:', { email, password });
+      const result = await loginUser({ email, password });
+      
+      console.log('Login sonucu:', result);
+      
+      if (result.token && result.user) {
+        // Token'ı AsyncStorage'a kaydet
+        await AsyncStorage.setItem('authToken', result.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(result.user));
+        
+        // Remember me işlemi
         if (rememberMe) {
           await AsyncStorage.setItem('rememberMe', 'true');
           await AsyncStorage.setItem('rememberedEmail', email);
@@ -68,8 +74,27 @@ const LoginScreen = () => {
           await AsyncStorage.removeItem('rememberedEmail');
           await AsyncStorage.removeItem('rememberedPassword');
         }
+
+        // Kullanıcı verilerini Redux'a yükle
+        await dispatch(loadUserData());
+        
+        console.log("✅ Başarıyla giriş yapıldı:", result.user);
+        
+        // Kullanıcının welcome_completed durumunu kontrol et
+        // Veritabanında welcome_completed: true olduğu için doğrudan ana ekrana yönlendir
+        if (navigationRef.isReady()) {
+          navigationRef.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [
+                { name: 'MainBottomTabs' }
+              ],
+            })
+          );
+        }
       }
     } catch (error) {
+      console.error('Login hatası:', error);
       Alert.alert("Hata", error.message || "Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.");
     } finally {
       setLoading(false);

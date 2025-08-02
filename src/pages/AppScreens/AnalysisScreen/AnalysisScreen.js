@@ -22,21 +22,8 @@ const AnalysisScreen = () => {
   // workautDays'i userData'dan al
   const workautDays = userData?.workautDays || [];
 
-  console.log(userExercises);
-  console.log(userData);
-  console.log(workautDays);
+  console.log("------->",userData.weight);
 
-  // completedDays: userExercises içindeki createdAt'ten haftanın günü
-  // Redux'ta createdAt ISO string olarak saklanıyor
-  const completedDays = userExercises
-    .map((log) => {
-      if (log.createdAt) {
-        const date = new Date(log.createdAt);
-        return date.getDay(); // 0 = Pazar, 1 = Pazartesi, ...
-      }
-      return null;
-    })
-    .filter(Boolean);
 
   // Egzersiz kayıtlarını tarihe göre sırala (en yeni önce)
   const sortedExercises = [...userExercises].sort((a, b) => {
@@ -57,7 +44,7 @@ const AnalysisScreen = () => {
         return exerciseDate.toDateString() === date.toDateString();
       });
       const totalCalories = dayExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle);
+        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
       }, 0);
       dailyData.push(totalCalories);
     }
@@ -72,7 +59,7 @@ const AnalysisScreen = () => {
         return exerciseDate.toDateString() === date.toDateString();
       });
       const totalCalories = dayExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle);
+        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight  );
       }, 0);
       weeklyData.push(totalCalories);
     }
@@ -91,7 +78,7 @@ const AnalysisScreen = () => {
       });
       
       const totalCalories = weekExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle);
+        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
       }, 0);
       monthlyData.push(totalCalories);
     }
@@ -112,7 +99,7 @@ const AnalysisScreen = () => {
       });
       
       const totalCalories = monthExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle);
+        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
       }, 0);
       sixMonthData.push(totalCalories);
     }
@@ -133,7 +120,7 @@ const AnalysisScreen = () => {
       });
       
       const totalCalories = monthExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle);
+        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
       }, 0);
       yearlyData.push(totalCalories);
     }

@@ -1,5 +1,5 @@
-// Kalori hesaplama fonksiyonu
-export const calculateCalories = (duration, unit, activityTitle) => {
+// Kalori hesaplama fonksiyonu (kişiselleştirilmiş ağırlık ile)
+export const calculateCalories = (duration, unit, activityTitle, weight = 70) => {
   // MET (Metabolic Equivalent of Task) değerleri
   const metValues = {
     "Futbol": 8.0,
@@ -22,18 +22,15 @@ export const calculateCalories = (duration, unit, activityTitle) => {
     "Elliptical": 5.5,
   };
 
-  // Ortalama kişi ağırlığı (kg) - gerçek uygulamada kullanıcının ağırlığı kullanılır
-  const averageWeight = 70; // kg
-  
   // MET değerini al (varsayılan: 5.0)
   const met = metValues[activityTitle] || 5.0;
-  
+
   // Süreyi dakikaya çevir
   const durationInMinutes = unit === "saat" ? duration * 60 : duration;
-  
+
   // Kalori hesaplama: Kalori = MET × Ağırlık (kg) × Süre (saat)
   const durationInHours = durationInMinutes / 60;
-  const calories = Math.round(met * averageWeight * durationInHours);
-  
+  const calories = Math.round(met * weight * durationInHours);
+
   return calories;
-}; 
+};

@@ -5,8 +5,15 @@ import { useNavigation } from '@react-navigation/native'
 
 const HeaderProfile = () => {
   const nav = useNavigation()
+  
+  const handleProfilePress = () => {
+    console.log('Profile butonuna tıklandı')
+    // MainStack içindeki ProfileScreen'e git
+    nav.navigate('ProfileScreen')
+  }
+
   return (
-    <TouchableOpacity onPress={()=> nav.navigate('ProfileScreen')} style={styles.container}>
+    <TouchableOpacity onPress={handleProfilePress} style={styles.container}>
       <Image style={styles.image} source={profile} />
     </TouchableOpacity>
   )

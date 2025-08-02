@@ -1,33 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { auth, firestoreDB } from "../firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// **1️⃣ Firestore'dan Kullanıcı Verisini Yükle**
+// **1️⃣ AsyncStorage'dan Kullanıcı Verisini Yükle**
 export const loadUserData = createAsyncThunk(
   "userData/loadUserData",
   async (_, { rejectWithValue }) => {
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("Kullanıcı bulunamadı.");
-
-      // Firestore'dan kullanıcı verisini al
-      const userDocRef = doc(firestoreDB, "users", user.uid);
-      const docSnap = await getDoc(userDocRef);
-
-      if (docSnap.exists()) {
-        let userData = docSnap.data();
-
-        // 🔹 Firestore Timestamp -> Serileştirilebilir Date Formatına Dönüştür
-        if (userData.createdAt) {
-          userData.createdAt = userData.createdAt.toDate().toISOString(); // ISO formatında string
-        }
-
-        // Redux Store ve AsyncStorage'a kaydet
-        // await AsyncStorage.setItem("userData", JSON.stringify(userData)); // kaldırıldı
-
+      // AsyncStorage'dan kullanıcı verisini al
+      const userDataString = await AsyncStorage.getItem('userData');
+      
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
         return userData;
       } else {
-        throw new Error("Firestore'da kullanıcı verisi bulunamadı.");
+        throw new Error("Kullanıcı verisi bulunamadı.");
       }
     } catch (e) {
       return rejectWithValue(e.message);
@@ -36,7 +22,7 @@ export const loadUserData = createAsyncThunk(
 );
 
 
-const initialState = {
+const initialState = { 
   userData: {
     gender: "",
     year: 0,
@@ -47,7 +33,7 @@ const initialState = {
     height: 0,
     weight: 0,
     workautDays: [],
-    welcomeCompleted: false, // <-- eklendi
+    welcomeCompleted: false,
   },
   status: "idle",
   error: null,

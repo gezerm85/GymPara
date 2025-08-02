@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   },
   bodyContainer: {
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
 });
 

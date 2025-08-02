@@ -9,10 +9,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { loadUserData } from "../../redux/dataSlice";
 import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 import { loadFavoritesFromStorage } from "../../redux/FavoriteSlice";
-import { auth } from "../../firebase/firebaseConfig";
 import { loadUserExercises } from "../../redux/userExercisesSlice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { signIn } from '../../firebase/firebaseAuth';
+import { loginUser } from '../../services/apiAuth';
 import { navigationRef } from './navigationUtils';
 
 const RootStack = createNativeStackNavigator();
@@ -20,37 +19,55 @@ const RootStack = createNativeStackNavigator();
 const Navigation = () => {
   const dispatch = useDispatch();
   const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [welcomeCompleted, setWelcomeCompleted] = useState(false);
   const { userData } = useSelector((state) => state.data);
 
   useEffect(() => {
     dispatch(loadFavoritesFromStorage());
   }, [dispatch]);
+  
   useEffect(() => {
     dispatch(loadUserExercises());
   }, [dispatch]);
   
- 
   useEffect(() => {
     const checkUserAndWelcome = async () => {
       try {
-        const user = auth.currentUser;
-        if (!user) {
+        // Token kontrolü
+        const authToken = await AsyncStorage.getItem('authToken');
+        const userDataString = await AsyncStorage.getItem('userData');
+        
+        if (!authToken || !userDataString) {
           // Otomatik giriş kontrolü
           const rememberMe = await AsyncStorage.getItem('rememberMe');
           const rememberedEmail = await AsyncStorage.getItem('rememberedEmail');
           const rememberedPassword = await AsyncStorage.getItem('rememberedPassword');
           if (rememberMe === 'true' && rememberedEmail && rememberedPassword) {
             try {
-              await signIn(rememberedEmail, rememberedPassword);
-              await dispatch(loadUserData());
+              const result = await loginUser({ email: rememberedEmail, password: rememberedPassword });
+              if (result.token && result.user) {
+                await AsyncStorage.setItem('authToken', result.token);
+                await AsyncStorage.setItem('userData', JSON.stringify(result.user));
+                await dispatch(loadUserData());
+                setIsLoggedIn(true);
+                setWelcomeCompleted(true); // Veritabanında welcome_completed: true
+              }
             } catch (e) {
-              // Otomatik giriş başarısızsa login ekranı göster
+              console.log('Otomatik giriş başarısız:', e.message);
+              setIsLoggedIn(false);
+              setWelcomeCompleted(false);
             }
+          } else {
+            setIsLoggedIn(false);
+            setWelcomeCompleted(false);
           }
-          setIsCheckingLogin(false);
-          return;
+        } else {
+          // Token varsa kullanıcı verilerini yükle
+          await dispatch(loadUserData());
+          setIsLoggedIn(true);
+          setWelcomeCompleted(true); // Veritabanında welcome_completed: true
         }
-        await dispatch(loadUserData());
       } finally {
         setIsCheckingLogin(false);
       }
@@ -62,8 +79,7 @@ const Navigation = () => {
     return <LoadingScreen />;
   }
 
-  const isLoggedIn = !!auth.currentUser;
-  const welcomeCompleted = userData?.welcomeCompleted === true;
+  console.log('Navigation - isLoggedIn:', isLoggedIn, 'welcomeCompleted:', welcomeCompleted);
 
   return (
     <NavigationContainer ref={navigationRef}>

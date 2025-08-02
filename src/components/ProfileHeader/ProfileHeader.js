@@ -6,10 +6,16 @@ import { useNavigation } from '@react-navigation/native';
 const ProfileHeader = () => {
   const navigation = useNavigation();
 
+  const handleGoBack = () => {
+    console.log('Geri butonuna tıklandı')
+    // MainStack içinde HomeScreen'e geri git
+    navigation.navigate('HomeScreen')
+  };
+
   return (
     <View style={styles.header}>
       <View style={styles.leftContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={handleGoBack}>
           <Icon name="arrow-left" size={20} color="#333" />
         </TouchableOpacity>
       </View>
@@ -35,6 +41,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
+    height: 80,
   },
   leftContainer: {
     flex: 1,

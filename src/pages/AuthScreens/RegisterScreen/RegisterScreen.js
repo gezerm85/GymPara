@@ -12,13 +12,17 @@ import {
   Platform
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { register, signIn } from "../../../firebase/firebaseAuth";
+import { registerUser, loginUser } from "../../../services/apiAuth";
 import Icon from "react-native-vector-icons/Ionicons";
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
 import { CommonActions } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from "react-redux";
+import { loadUserData } from "../../../redux/dataSlice";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,20 +56,50 @@ const RegisterScreen = () => {
     if (!validateInputs()) return;
     setLoading(true);
     try {
-      await register(email, password, fullName);
-      // Kayıt başarılı, otomatik giriş yap
-      await signIn(email, password);
-      if (navigationRef.isReady()) {
-        navigationRef.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              { name: 'Welcome', params: { screen: 'Gender' } }
-            ],
-          })
-        );
+      console.log('Register denemesi:', { name: fullName, email, password });
+      
+      // Önce kayıt işlemi
+      const registerResult = await registerUser({
+        name: fullName,
+        email,
+        password
+      });
+
+      console.log('Register sonucu:', registerResult);
+
+      if (registerResult.message) {
+        // Kayıt başarılı, otomatik giriş yap
+        console.log('Kayıt başarılı, giriş yapılıyor...');
+        const loginResult = await loginUser({ email, password });
+        
+        console.log('Login sonucu:', loginResult);
+        
+        if (loginResult.token && loginResult.user) {
+          // Token'ı AsyncStorage'a kaydet
+          await AsyncStorage.setItem('authToken', loginResult.token);
+          await AsyncStorage.setItem('userData', JSON.stringify(loginResult.user));
+          
+          // Kullanıcı verilerini Redux'a yükle
+          await dispatch(loadUserData());
+          
+          console.log("✅ Başarıyla kayıt olundu ve giriş yapıldı:", loginResult.user);
+          Alert.alert("Başarılı", "Kayıt olundu ve giriş yapıldı!");
+          
+          // Welcome flow'a yönlendir
+          if (navigationRef.isReady()) {
+            navigationRef.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [
+                  { name: 'Welcome', params: { screen: 'Gender' } }
+                ],
+              })
+            );
+          }
+        }
       }
     } catch (error) {
+      console.error('Register hatası:', error);
       Alert.alert("Kayıt Hatası", error.message || "Kayıt sırasında bir hata oluştu.");
     } finally {
       setLoading(false);
