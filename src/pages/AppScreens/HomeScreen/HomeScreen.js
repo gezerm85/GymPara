@@ -2,7 +2,6 @@ import { StyleSheet, Text, View, Button, Modal, Dimensions } from "react-native"
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import CarouselComponent from "../../../components/CarouselComponent/CarouselComponent";
-import TopTabsNavigator from "../../../router/TopTabsNavigator/TopTabsNavigator";
 import CustomHeader from "../../../components/CustomHeader/CustomHeader";
 import WeeklyGoal from "../../../components/CustomCalendar/WeeklyGoalComponent ";
 import { loadUserExercises } from "../../../redux/userExercisesSlice";
@@ -11,10 +10,10 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.data.userData.userInformation);
   const userExercises = useSelector((state) => state.userExercises.items);
+  const { profile } = useSelector((state) => state.user);
 
-  // workautDays'i userData'dan al
-  const workautDays = userData?.workautDays || [];
-  console.log("workautDays", workautDays);
+  // API'den gelen workout_days'i kullan, yoksa userData'dan al
+  const workautDays = profile?.workout_days || userData?.workautDays || [];
 
   // completedDays: userExercises içindeki createdAt'ten haftanın günü
   const completedDays = userExercises
@@ -45,7 +44,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f5f5f5",
   },
   weeklyGoalContainer: {
     paddingVertical: 8,

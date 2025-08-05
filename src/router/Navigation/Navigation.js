@@ -1,95 +1,81 @@
-import React, { useEffect, useState } from "react";
-import {
-  NavigationContainer,
-} from "@react-navigation/native";
+import React, { useState, useEffect } from "react";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useDispatch, useSelector } from "react-redux";
+import { checkAuthStatus } from "../../redux/authSlice";
+import { loadUserData } from "../../redux/dataSlice";
+import { getUserProfile } from "../../redux/userSlice";
+import { fetchUserPoints } from "../../redux/pointsSlice";
+import { fetchCategories, fetchExercises, fetchWorkouts } from "../../redux/exercisesSlice";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Stacks
 import WelcomeStack from "../WelcomeStack/WelcomeStack";
 import MainBottomTabs from "../MainBottomTabs/MainBottomTabs";
-import { useSelector, useDispatch } from "react-redux";
-import { loadUserData } from "../../redux/dataSlice";
-import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
-import { loadFavoritesFromStorage } from "../../redux/FavoriteSlice";
-import { loadUserExercises } from "../../redux/userExercisesSlice";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loginUser } from '../../services/apiAuth';
-import { navigationRef } from './navigationUtils';
 
-const RootStack = createNativeStackNavigator();
+// Navigation ref
+import { navigationRef } from "./navigationUtils";
 
-const Navigation = () => {
+const Stack = createNativeStackNavigator();
+
+const Navigation = () => { 
   const dispatch = useDispatch();
-  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [welcomeCompleted, setWelcomeCompleted] = useState(false);
-  const { userData } = useSelector((state) => state.data);
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const [isInitialized, setIsInitialized] = useState(false);
+  
 
   useEffect(() => {
-    dispatch(loadFavoritesFromStorage());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    dispatch(loadUserExercises());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const checkUserAndWelcome = async () => {
+    const initializeApp = async () => { 
       try {
-        // Token kontrolü
-        const authToken = await AsyncStorage.getItem('authToken');
-        const userDataString = await AsyncStorage.getItem('userData');
-        
-        if (!authToken || !userDataString) {
-          // Otomatik giriş kontrolü
-          const rememberMe = await AsyncStorage.getItem('rememberMe');
-          const rememberedEmail = await AsyncStorage.getItem('rememberedEmail');
-          const rememberedPassword = await AsyncStorage.getItem('rememberedPassword');
-          if (rememberMe === 'true' && rememberedEmail && rememberedPassword) {
-            try {
-              const result = await loginUser({ email: rememberedEmail, password: rememberedPassword });
-              if (result.token && result.user) {
-                await AsyncStorage.setItem('authToken', result.token);
-                await AsyncStorage.setItem('userData', JSON.stringify(result.user));
-                await dispatch(loadUserData());
-                setIsLoggedIn(true);
-                setWelcomeCompleted(true); // Veritabanında welcome_completed: true
-              }
-            } catch (e) {
-              console.log('Otomatik giriş başarısız:', e.message);
-              setIsLoggedIn(false);
-              setWelcomeCompleted(false);
-            }
-          } else {
-            setIsLoggedIn(false);
-            setWelcomeCompleted(false);
-          }
-        } else {
-          // Token varsa kullanıcı verilerini yükle
+        // Auth durumunu kontrol et 
+        await dispatch(checkAuthStatus());
+         
+        // Eğer kullanıcı giriş yapmışsa, kullanıcı verilerini yükle
+        if (isAuthenticated) {
           await dispatch(loadUserData());
-          setIsLoggedIn(true);
-          setWelcomeCompleted(true); // Veritabanında welcome_completed: true
+          await dispatch(getUserProfile()); // Profil verilerini de yükle
+          await dispatch(fetchUserPoints()); // Puanları yükle
+          await dispatch(fetchCategories()); // Egzersiz kategorilerini yükle
+          await dispatch(fetchExercises()); // Egzersizleri yükle
+          await dispatch(fetchWorkouts()); // Kullanıcı workout'larını yükle
         }
-      } finally {
-        setIsCheckingLogin(false);
-      }
+        
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('App initialization error:', error);
+        setIsInitialized(true);
+      } 
     };
-    checkUserAndWelcome();
-  }, [dispatch]);
 
-  if (isCheckingLogin) {
-    return <LoadingScreen />;
+    initializeApp();
+  }, [dispatch, isAuthenticated]);
+
+  // Auth durumu değiştiğinde kullanıcı verilerini yükle
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(loadUserData());
+      dispatch(getUserProfile()); // Profil verilerini de yükle
+      dispatch(fetchUserPoints()); // Puanları yükle
+      dispatch(fetchCategories()); // Egzersiz kategorilerini yükle
+      dispatch(fetchExercises()); // Egzersizleri yükle
+      dispatch(fetchWorkouts()); // Kullanıcı workout'larını yükle
+    }
+  }, [isAuthenticated, dispatch]);
+
+  // Loading durumunda loading screen göster
+  if (!isInitialized || loading) {
+    return null; // veya loading component
   }
-
-  console.log('Navigation - isLoggedIn:', isLoggedIn, 'welcomeCompleted:', welcomeCompleted);
 
   return (
     <NavigationContainer ref={navigationRef}>
-      <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {!isLoggedIn || !welcomeCompleted ? (
-          <RootStack.Screen name="Welcome" component={WelcomeStack} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!isAuthenticated ? (
+          <Stack.Screen name="Welcome" component={WelcomeStack} />
         ) : (
-          <RootStack.Screen name="MainBottomTabs" component={MainBottomTabs} />
+          <Stack.Screen name="MainBottomTabs" component={MainBottomTabs} />
         )}
-      </RootStack.Navigator>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

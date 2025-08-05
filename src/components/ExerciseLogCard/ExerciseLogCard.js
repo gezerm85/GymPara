@@ -4,7 +4,7 @@ import Icon from "react-native-vector-icons/FontAwesome6";
 import { colors } from "../../utils/Colors/Color";
 import { calculateCalories } from "../../utils/calorieCalculator";
 
-const ExerciseLogCard = ({ exercise }) => {
+const ExerciseLogCard = ({ exercise, userWeight = 70 }) => {
   // Tarih formatını düzenle
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -32,9 +32,11 @@ const ExerciseLogCard = ({ exercise }) => {
     }
   };
 
-  const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle);
+  const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userWeight);
   const formattedDate = formatDate(exercise.createdAt);
   const formattedDuration = formatDuration(exercise.duration, exercise.unit);
+  
+
 
   return (
     <View style={styles.card}>

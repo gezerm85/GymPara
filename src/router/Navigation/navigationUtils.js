@@ -10,15 +10,15 @@ export const navigate = (name, params) => {
 };
 
 export const goBack = () => {
-  if (navigationRef.isReady()) {
+  if (navigationRef.isReady() && navigationRef.canGoBack()) {
     navigationRef.goBack();
   }
 };
 
-export const reset = (routes, index = 0) => {
+export const reset = (routes) => {
   if (navigationRef.isReady()) {
     navigationRef.reset({
-      index,
+      index: 0,
       routes,
     });
   }

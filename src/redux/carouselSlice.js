@@ -1,26 +1,34 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { collection, getDocs } from "firebase/firestore";
-import { firestoreDB } from "../firebase/firebaseConfig";
 
-// Firebase'den carousel verilerini çek
+// Mock carousel verilerini çek
 export const fetchCarouselData = createAsyncThunk(
   'carousel/fetchCarouselData',
   async () => {
     try {
-      const carouselCollection = collection(firestoreDB, "carouselCards");
-      const carouselSnapshot = await getDocs(carouselCollection);
-      
-      const carouselItems = [];
-      carouselSnapshot.forEach((doc) => {
-        const data = doc.data();
-        carouselItems.push({
-          id: data.id || doc.id,
-          title: data.title || "",
-          description: data.description || "",
-          color: data.color || "#4ECDC4",
-          img: data.img || "",
-        });
-      });
+      // Mock carousel verileri
+      const carouselItems = [
+        {
+          id: 1,
+          title: "Yeni Antrenman Programı",
+          description: "Kişiselleştirilmiş antrenman programınızı keşfedin",
+          color: "#FF6B6B",
+          img: ""
+        },
+        {
+          id: 2,
+          title: "Beslenme Rehberi",
+          description: "Sağlıklı beslenme ipuçları ve öneriler",
+          color: "#4ECDC4",
+          img: ""
+        },
+        {
+          id: 3,
+          title: "İlerleme Takibi",
+          description: "Fitness hedeflerinizi takip edin ve başarılarınızı görün",
+          color: "#45B7D1",
+          img: ""
+        }
+      ];
       
       // ID'ye göre sırala
       carouselItems.sort((a, b) => a.id - b.id);

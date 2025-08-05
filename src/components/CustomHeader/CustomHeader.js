@@ -54,13 +54,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   title: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
   },
   title2: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
     color: colors.MainColor,
     textAlign: 'center',

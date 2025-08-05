@@ -2,16 +2,13 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
 import { Image } from "expo-image"; 
 import { useSelector, useDispatch } from "react-redux";
-import { fetchUserPoints } from "../../redux/pointsSlice.js";
 
 const ScoreComp = () => {
   const dispatch = useDispatch();
-  const { currentPoints, loading } = useSelector((state) => state.points);
+  const { profile, loading } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    // Component mount olduğunda puanları getir
-    dispatch(fetchUserPoints());
-  }, [dispatch]);
+  
+
 
   // Puanları formatla (10000 -> 10.000)
   const formatPoints = (points) => {
@@ -22,7 +19,7 @@ const ScoreComp = () => {
   return (
     <TouchableOpacity style={styles.container}>
       <Image style={styles.image} source={require("../../assets/images/dollar.png")} />
-      <Text style={styles.title}>{formatPoints(currentPoints)}</Text>
+      <Text style={styles.title}>{formatPoints(profile?.point || 0)}</Text>
     </TouchableOpacity>
   );
 };

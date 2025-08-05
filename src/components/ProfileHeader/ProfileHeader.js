@@ -11,6 +11,7 @@ const ProfileHeader = () => {
     // MainStack içinde HomeScreen'e geri git
     navigation.navigate('HomeScreen')
   };
+  
 
   return (
     <View style={styles.header}>

@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, Image, Pressable } from "react-native";
-import React from "react";
-import Rectangle from "../../../assets/images/Rectangle.png";
-import Gift from "../../../assets/images/gift.png";
-import { colors } from "../../../utils/Colors/Color";
-import { useNavigation } from "@react-navigation/native";
+import React from 'react'
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { colors } from '../../../utils/Colors/Color'
+import { API_IMAGE_BASE_URL } from '@env';
+
+const IMAGE_BASE_URL = API_IMAGE_BASE_URL || 'http://10.0.2.2:5000';
 
 const StoreCard = ({ item }) => {
   const nav = useNavigation();
@@ -13,22 +14,25 @@ const StoreCard = ({ item }) => {
 
   };
   return (
-    <Pressable onPress={handleOnPress} style={styles.container}>
+    <TouchableOpacity onPress={handleOnPress} style={styles.container}>
       <View style={styles.imgContainer}>
-        <Image style={styles.img} source={Rectangle} />
+        <Image style={styles.img} source={{ uri: `${IMAGE_BASE_URL}${item.img}` }}/>
       </View>
-      <View style={styles.bodyContainer}>
+      <View style={styles.bodyContainer}> 
         <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.model}>{item.model}</Text>
+        <Text style={styles.description} numberOfLines={2}>
+          {item.description}
+        </Text>
         <Text style={styles.price}>
           {item.price}
-
           <Text style={{ color: colors.textColor }}> GP</Text>
         </Text>
       </View>
       <View style={styles.giftContainer}>
         <Image style={styles.gift} source={Gift} />
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
@@ -36,13 +40,14 @@ export default StoreCard;
 
 const styles = StyleSheet.create({
   container: {
-    height: 88,
+    height: 120,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#fff",
     gap: 16,
+    paddingVertical: 16,
   },
   imgContainer: {
     height: "100",
@@ -63,6 +68,22 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "Medium",
     fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+  },
+  model: {
+    fontFamily: "Regular",
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 4,
+  },
+  description: {
+    fontFamily: "Regular",
+    fontSize: 12,
+    color: "#999",
+    lineHeight: 16,
+    marginBottom: 8,
   },
   img: {
     width: 88,
@@ -75,5 +96,6 @@ const styles = StyleSheet.create({
   price: {
     fontFamily: "ExtraBold",
     color: colors.MainColor,
+    fontSize: 18,
   },
 });

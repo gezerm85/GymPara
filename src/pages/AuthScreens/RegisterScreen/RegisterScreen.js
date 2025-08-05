@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,41 +12,77 @@ import {
   Platform
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { registerUser, loginUser } from "../../../services/apiAuth";
 import Icon from "react-native-vector-icons/Ionicons";
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
 import { CommonActions } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, loginUser, clearError } from "../../../redux/authSlice";
 import { loadUserData } from "../../../redux/dataSlice";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const [fullName, setFullName] = useState("");
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  // Auth durumunu izle
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Kullanıcı verilerini Redux'a yükle
+      dispatch(loadUserData());
+      
+      // Navigation'ı yeniden başlat
+      if (navigationRef.isReady()) {
+        navigationRef.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              { name: 'Welcome' }
+            ],
+          })
+        );
+      }
+    }
+  }, [isAuthenticated, dispatch]);
+
+  // Hata mesajını göster
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Hata", error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const validateInputs = () => {
-    if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert("Uyarı", "Lütfen tüm alanları doldurun.");
+    if (!name.trim()) {
+      Alert.alert("Uyarı", "Lütfen adınızı giriniz.");
       return false;
     }
-    if (password !== confirmPassword) {
-      Alert.alert("Hata", "Şifreler eşleşmiyor.");
+    if (!email.trim()) {
+      Alert.alert("Uyarı", "Lütfen e-posta adresinizi giriniz.");
       return false;
     }
     const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
     if (!emailRegex.test(email)) {
-      Alert.alert("Uyarı", "Lütfen geçerli bir e-posta giriniz.");
+      Alert.alert("Uyarı", "Lütfen geçerli bir e-posta adresi giriniz.");
+      return false;
+    }
+    if (!password.trim()) {
+      Alert.alert("Uyarı", "Lütfen şifrenizi giriniz.");
       return false;
     }
     if (password.length < 6) {
-      Alert.alert("Uyarı", "Şifre en az 6 karakter olmalıdır.");
+      Alert.alert("Uyarı", "Şifreniz en az 6 karakter olmalıdır.");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert("Uyarı", "Şifreler eşleşmiyor.");
       return false;
     }
     return true;
@@ -54,55 +90,16 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
     if (!validateInputs()) return;
-    setLoading(true);
+    
     try {
-      console.log('Register denemesi:', { name: fullName, email, password });
+      // Önce kayıt ol
+      await dispatch(registerUser({ name, email, password }));
       
-      // Önce kayıt işlemi
-      const registerResult = await registerUser({
-        name: fullName,
-        email,
-        password
-      });
-
-      console.log('Register sonucu:', registerResult);
-
-      if (registerResult.message) {
-        // Kayıt başarılı, otomatik giriş yap
-        console.log('Kayıt başarılı, giriş yapılıyor...');
-        const loginResult = await loginUser({ email, password });
-        
-        console.log('Login sonucu:', loginResult);
-        
-        if (loginResult.token && loginResult.user) {
-          // Token'ı AsyncStorage'a kaydet
-          await AsyncStorage.setItem('authToken', loginResult.token);
-          await AsyncStorage.setItem('userData', JSON.stringify(loginResult.user));
-          
-          // Kullanıcı verilerini Redux'a yükle
-          await dispatch(loadUserData());
-          
-          console.log("✅ Başarıyla kayıt olundu ve giriş yapıldı:", loginResult.user);
-          Alert.alert("Başarılı", "Kayıt olundu ve giriş yapıldı!");
-          
-          // Welcome flow'a yönlendir
-          if (navigationRef.isReady()) {
-            navigationRef.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [
-                  { name: 'Welcome', params: { screen: 'Gender' } }
-                ],
-              })
-            );
-          }
-        }
-      }
+      // Sonra otomatik giriş yap
+      await dispatch(loginUser({ email, password }));
+      
     } catch (error) {
       console.error('Register hatası:', error);
-      Alert.alert("Kayıt Hatası", error.message || "Kayıt sırasında bir hata oluştu.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -121,8 +118,8 @@ const RegisterScreen = () => {
             style={styles.input}
             placeholder="İsim Soyisim"
             placeholderTextColor="#aaa"
-            value={fullName}
-            onChangeText={setFullName}
+            value={name}
+            onChangeText={setName}
             autoCapitalize="words"
           />
           <TextInput

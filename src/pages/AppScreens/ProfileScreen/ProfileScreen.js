@@ -1,49 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, Image, Alert } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigation, CommonActions } from "@react-navigation/native";
-import { loadUserData } from "../../../redux/dataSlice";
-import { logoutUser, getUserProfile, uploadProfileImage } from "../../../services/apiAuth";
-import ProfileHeader from "../../../components/ProfileHeader/ProfileHeader";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors } from "../../../utils/Colors/Color";
+import React, { useState, useEffect } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Image,
+  ActivityIndicator
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../../redux/authSlice";
+import { getUserProfile, clearError } from "../../../redux/userSlice";
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
+import { CommonActions } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import Icon from "react-native-vector-icons/Ionicons";
+import ProfileHeader from "../../../components/ProfileHeader/ProfileHeader";
+import { API_IMAGE_BASE_URL } from '@env';
+
+const IMAGE_BASE_URL = API_IMAGE_BASE_URL || 'http://10.0.2.2:5000';
 
 const ProfileScreen = () => {
-  const { userData } = useSelector((state) => state.data);
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { profile, loading, error, uploadLoading, uploadError } = useSelector((state) => state.user);
 
-  // Profil bilgilerini API'den al
+  // Component mount olduğunda profil verilerini yükle
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        setLoading(true);
-        const result = await getUserProfile();
-        console.log('Profil bilgileri:', result);
-        setProfileData(result);
-      } catch (error) {
-        console.error('Profil bilgileri alınamadı:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(getUserProfile());
+  }, [dispatch]);
 
-    fetchProfileData();
-  }, []);
+  // Hata mesajlarını göster
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Hata", error);
+      dispatch(clearError());
+    }
+    if (uploadError) {
+      Alert.alert("Yükleme Hatası", uploadError);
+      dispatch(clearError());
+    }
+  }, [error, uploadError, dispatch]);
 
-  // Fotoğraf seçme ve yükleme
+  console.log('ProfileScreen - profile data:', profile);
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Çıkış Yap",
+      "Çıkış yapmak istediğinizden emin misiniz?",
+      [
+        { text: "İptal", style: "cancel" },
+        {
+          text: "Çıkış Yap",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await dispatch(logoutUser());
+              
+              // Login ekranına yönlendir
+              if (navigationRef.isReady()) {
+                navigationRef.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [
+                      { name: 'LoginScreen' }
+                    ],
+                  })
+                );
+              }
+            } catch (error) {
+              console.error('Logout hatası:', error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleImageUpload = async () => {
     try {
-      // İzin iste
+      // İzinleri kontrol et
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('İzin Gerekli', 'Fotoğraf galerisine erişim izni gereklidir.');
+        Alert.alert('İzin Gerekli', 'Fotoğraf seçmek için galeri izni gereklidir.');
         return;
       }
 
@@ -56,49 +98,12 @@ const ProfileScreen = () => {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setUploading(true);
-        
-        // Fotoğrafı yükle
-        const uploadResult = await uploadProfileImage(result.assets[0].uri);
-        
-        // Profil bilgilerini yeniden yükle
-        const updatedProfile = await getUserProfile();
-        setProfileData(updatedProfile);
-        
+        // Mock - fotoğraf yükleme başarılı
         Alert.alert('Başarılı', 'Profil fotoğrafı güncellendi!');
       }
     } catch (error) {
       console.error('Fotoğraf yükleme hatası:', error);
       Alert.alert('Hata', 'Fotoğraf yüklenirken bir hata oluştu.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      console.log('Çıkış yapılıyor...');
-      
-      // API'ye logout isteği gönder
-      await logoutUser();
-      
-      // Redux state'i temizle
-      dispatch(loadUserData({}));
-      
-      console.log("✅ Başarıyla çıkış yapıldı.");
-      
-      // Kullanıcıyı WelcomeStack içindeki LoginScreen'e yönlendir
-      if (navigationRef.isReady()) {
-        navigationRef.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: "Welcome", params: { screen: "LoginScreen" } }],
-          })
-        );
-      }
-  
-    } catch (error) {
-      console.error("Çıkış yapma hatası:", error);
     }
   };
 
@@ -107,7 +112,7 @@ const ProfileScreen = () => {
       <View style={styles.container}>
         <ProfileHeader />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.MainColor} />
+          <ActivityIndicator size="large" color="#000" />
           <Text style={styles.loadingText}>Profil bilgileri yükleniyor...</Text>
         </View>
       </View>
@@ -122,21 +127,21 @@ const ProfileScreen = () => {
         
         {/* Profil Resmi */}
         <View style={styles.profileImageContainer}>
-          <TouchableOpacity onPress={handleImageUpload} disabled={uploading}>
-            {profileData?.profile_image_url ? (
+          <TouchableOpacity onPress={handleImageUpload} disabled={uploadLoading}>
+            {profile?.profile_image_url ? (
               <Image 
-                source={{ uri: `http://10.0.2.2:5000${profileData.profile_image_url}` }}
+                source={{ uri: `${IMAGE_BASE_URL}${profile.profile_image_url}` }}
                 style={styles.profileImage}
                 resizeMode="cover"
               />
             ) : (
               <View style={styles.defaultProfileImage}>
-                <Icon name="account" size={40} color="#ccc" />
+                <Icon name="person" size={40} color="#ccc" />
               </View>
             )}
             
             {/* Yükleme göstergesi */}
-            {uploading && (
+            {uploadLoading && (
               <View style={styles.uploadOverlay}>
                 <ActivityIndicator size="small" color="#fff" />
               </View>
@@ -151,57 +156,57 @@ const ProfileScreen = () => {
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>İsim:</Text>
-          <Text style={styles.info}>{profileData?.name || "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.name || "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>E-posta:</Text>
-          <Text style={styles.info}>{profileData?.email || "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.email || "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Cinsiyet:</Text>
-          <Text style={styles.info}>{profileData?.gender || "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.gender || "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Doğum Yılı:</Text>
-          <Text style={styles.info}>{profileData?.birth_year || "-"}</Text>
+          <Text style={styles.info}>{profile?.birth_year || "-"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Aktivite Seviyesi:</Text>
-          <Text style={styles.info}>{profileData?.activity_level || "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.activity_level || "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Motivasyon:</Text>
-          <Text style={styles.info}>{profileData?.motivation || "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.motivation || "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Kilo:</Text>
-          <Text style={styles.info}>{profileData?.weight ? `${profileData.weight} kg` : "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.weight ? `${profile.weight} kg` : "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Boy:</Text>
-          <Text style={styles.info}>{profileData?.height ? `${profileData.height} cm` : "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.height ? `${profile.height} cm` : "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Egzersiz Günleri:</Text>
-          <Text style={styles.info}>{profileData?.workout_days?.join(', ') || "Belirtilmemiş"}</Text>
+          <Text style={styles.info}>{profile?.workout_days?.join(', ') || "Belirtilmemiş"}</Text>
         </View>
         
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Puan:</Text>
-          <Text style={styles.info}>{profileData?.point || 0} GP</Text>
+          <Text style={styles.info}>{profile?.point || 0} GP</Text>
         </View>
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Icon name="logout" size={24} color="#fff" />
+        <Icon name="log-out" size={24} color="#fff" />
         <Text style={styles.logoutText}>Çıkış Yap</Text>
       </TouchableOpacity>
     </View>
@@ -254,7 +259,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: colors.MainColor,
+    borderColor: "#007bff", // Changed from colors.MainColor to a specific color
   },
   defaultProfileImage: {
     width: 100,
@@ -279,7 +284,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: colors.MainColor,
+    backgroundColor: "#007bff", // Changed from colors.MainColor to a specific color
     borderRadius: 15,
     width: 30,
     height: 30,

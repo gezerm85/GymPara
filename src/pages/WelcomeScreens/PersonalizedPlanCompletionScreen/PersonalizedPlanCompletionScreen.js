@@ -1,52 +1,57 @@
-import { StyleSheet, Text, View, Dimensions, SafeAreaView } from "react-native";
-import React, { useState } from "react";
-import loaded from "../../../assets/Lottie/completed.json";
+import React, { useState, useEffect } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Dimensions
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { markWelcomeCompleted, clearError } from "../../../redux/userSlice";
+import { navigationRef } from '../../../router/Navigation/navigationUtils';
+import { CommonActions } from '@react-navigation/native';
+import Icon from "react-native-vector-icons/Ionicons";
 import LottieView from "lottie-react-native";
+import Animated, { RotateInUpLeft } from "react-native-reanimated";
+import loaded from "../../../assets/Lottie/completed.json";
 import { colors } from "../../../utils/Colors/Color";
 import CustomButton from "../../../components/CustomButton/CustomButton";
-import Animated, { RotateInUpLeft } from "react-native-reanimated";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigation, CommonActions } from "@react-navigation/native";
-import { setWelcomeCompleted } from '../../../redux/dataSlice';
-import { navigationRef } from '../../../router/Navigation/navigationUtils';
-import { markWelcomeCompleted } from '../../../services/apiAuth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PersonalizedPlanCompletionScreen = () => {
-  const [animationFinished, setAnimationFinished] = useState(false);
-  const { userData } = useSelector((state) => state.data);
+  const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.user);
+  const [animationFinished, setAnimationFinished] = useState(false);
 
-  const navigation = useNavigation()
+  // Hata mesajını göster
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Hata", error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
-  // 🔹 **API'ye kullanıcı verisini gönder ve 'welcome_completed' işaretini güncelle**
   const handleOnPress = async () => {
     try {
-      console.log('Welcome completed işaretleniyor...');
+      await dispatch(markWelcomeCompleted());
       
-      // API'ye welcome_completed: true gönder
-      const result = await markWelcomeCompleted();
-      console.log('API yanıtı:', result);
-      
-      // Redux state'i güncelle
-      dispatch(setWelcomeCompleted(true));
-      
-      // AsyncStorage'ı güncelle
-      const currentUserData = await AsyncStorage.getItem('userData');
-      if (currentUserData) {
-        const updatedUserData = {
-          ...JSON.parse(currentUserData),
-          welcome_completed: true
-        };
-        await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+      // Ana ekrana yönlendir
+      if (navigationRef.isReady()) {
+        navigationRef.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              { name: 'MainBottomTabs' }
+            ],
+          })
+        );
       }
-      
-      console.log("✅ Welcome completed başarıyla işaretlendi");
-      
-      // Navigation.js otomatik olarak ana ekrana yönlendirecek
-
     } catch (error) {
-      console.error("Veri güncelleme hatası:", error);
+      console.error('Welcome completed hatası:', error);
     }
   };
 

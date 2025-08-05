@@ -22,7 +22,7 @@ const CarouselComponent = () => {
     return (
       <View style={styles.carouselItem}>
         {/* Kırmızı arka plan */}
-        <View style={styles.redBackground}>
+        <View style={styles.bodyContainer}>
           {/* Sol taraf - Metin içeriği */}
           <View style={styles.textContainer}>
             <Text style={styles.mainTitle}>GÜNLÜK BONUS</Text>
@@ -82,7 +82,7 @@ const CarouselComponent = () => {
     <Carousel
       loop
       width={screenWidth - 32}
-      height={160}
+      height={169}
       autoPlay={true}
       data={carouselData}
       scrollAnimationDuration={1000}
@@ -102,19 +102,19 @@ export default CarouselComponent
 
 const styles = StyleSheet.create({
   loadingContainer: {
-    height: 160,
+    height: 169,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyStateContainer: {
-    height: 160,
+    height: 169,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   emptyStateText: {
     fontSize: 18,
-    color: '#888',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -128,9 +128,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-  redBackground: {
+  bodyContainer: {
     flex: 1,
-    backgroundColor: '#FF4444',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     padding: 20,
     position: 'relative',

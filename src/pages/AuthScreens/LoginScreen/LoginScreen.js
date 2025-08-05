@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,22 +12,50 @@ import {
   Platform
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { loginUser } from "../../../services/apiAuth";
 import Icon from "react-native-vector-icons/Ionicons";
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
 import { CommonActions } from '@react-navigation/native';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearError } from "../../../redux/authSlice";
 import { loadUserData } from "../../../redux/dataSlice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Auth durumunu izle
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Kullanıcı verilerini Redux'a yükle
+      dispatch(loadUserData());
+      
+      // Navigation'ı yeniden başlat
+      if (navigationRef.isReady()) {
+        navigationRef.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              { name: 'MainBottomTabs' }
+            ],
+          })
+        );
+      }
+    }
+  }, [isAuthenticated, dispatch]);
+
+  // Hata mesajını göster
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Hata", error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const validateInputs = () => {
     if (!email.trim()) {
@@ -52,52 +80,24 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     if (!validateInputs()) return;
-    setLoading(true);
+    
     try {
-      console.log('Login denemesi:', { email, password });
-      const result = await loginUser({ email, password });
-      
-      console.log('Login sonucu:', result);
-      
-      if (result.token && result.user) {
-        // Token'ı AsyncStorage'a kaydet
-        await AsyncStorage.setItem('authToken', result.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(result.user));
-        
-        // Remember me işlemi
-        if (rememberMe) {
-          await AsyncStorage.setItem('rememberMe', 'true');
-          await AsyncStorage.setItem('rememberedEmail', email);
-          await AsyncStorage.setItem('rememberedPassword', password);
-        } else {
-          await AsyncStorage.removeItem('rememberMe');
-          await AsyncStorage.removeItem('rememberedEmail');
-          await AsyncStorage.removeItem('rememberedPassword');
-        }
-
-        // Kullanıcı verilerini Redux'a yükle
-        await dispatch(loadUserData());
-        
-        console.log("✅ Başarıyla giriş yapıldı:", result.user);
-        
-        // Kullanıcının welcome_completed durumunu kontrol et
-        // Veritabanında welcome_completed: true olduğu için doğrudan ana ekrana yönlendir
-        if (navigationRef.isReady()) {
-          navigationRef.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [
-                { name: 'MainBottomTabs' }
-              ],
-            })
-          );
-        }
+      // Remember me işlemi
+      if (rememberMe) {
+        await AsyncStorage.setItem('rememberMe', 'true');
+        await AsyncStorage.setItem('rememberedEmail', email);
+        await AsyncStorage.setItem('rememberedPassword', password);
+      } else {
+        await AsyncStorage.removeItem('rememberMe');
+        await AsyncStorage.removeItem('rememberedEmail');
+        await AsyncStorage.removeItem('rememberedPassword');
       }
+
+      // Login işlemi
+      await dispatch(loginUser({ email, password }));
+      
     } catch (error) {
       console.error('Login hatası:', error);
-      Alert.alert("Hata", error.message || "Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.");
-    } finally {
-      setLoading(false);
     }
   };
 

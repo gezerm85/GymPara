@@ -2,19 +2,20 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors } from "../../utils/Colors/Color";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addPoints } from "../../redux/pointsSlice";
-import { addUserPoints } from "../../firebase/pointSystem";
-import { auth } from "../../firebase/firebaseConfig";
 import { Dialog, Portal, Button } from 'react-native-paper';
-import { firestoreDB } from "../../firebase/firebaseConfig";
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '@env';
+
+const API_URL = API_BASE_URL || 'http://10.0.2.2:5000/api';
 
 const WeeklyGoal = ({ 
   completedDays = [],
   workautDays = [],
 }) => {
   const dispatch = useDispatch();
+  const { profile } = useSelector((state) => state.user);
   const [hasClaimedReward, setHasClaimedReward] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
@@ -22,8 +23,11 @@ const WeeklyGoal = ({
   const today = new Date();
   const currentDay = today.getDay();
 
-  const Days = workautDays.length; 
+  // API'den gelen workout_days'i kullan, yoksa prop'tan al
+  const workoutDays = profile?.workout_days || workautDays;
+  const Days = workoutDays.length; 
   const completed = completedDays.length;
+
 
   // Haftanın başlangıç tarihini hesapla
   const getWeekStartDate = () => {
@@ -35,7 +39,7 @@ const WeeklyGoal = ({
   // Hafta anahtarını hesapla (hafta değişimi için)
   const getWeekKey = () => {
     const weekStartDate = getWeekStartDate();
-    return `${auth.currentUser?.uid}_${weekStartDate}`;
+    return `user_1_${weekStartDate}`; // Şimdilik sabit user_id: 1
   };
 
   const startOfWeek = new Date(today);
@@ -55,34 +59,38 @@ const WeeklyGoal = ({
     };
   });
 
-  // Firebase'den haftalık hedef durumunu kontrol et
+  // API'den haftalık hedef durumunu kontrol et
   const checkWeeklyGoalStatus = async () => {
     try {
-      const userId = auth.currentUser?.uid;
-      if (!userId) return;
-
       const weekKey = getWeekKey();
       setCurrentWeekKey(weekKey);
       
-      const weeklyGoalRef = doc(firestoreDB, 'weekly_goals', weekKey);
-      const weeklyGoalDoc = await getDoc(weeklyGoalRef);
+      // API'den haftalık hedef durumunu kontrol et
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/weekly-goals/${weekKey}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (weeklyGoalDoc.exists() && weeklyGoalDoc.data().completed) {
-        setHasClaimedReward(true);
-        console.log('Haftalık hedef zaten tamamlanmış');
+      if (response.ok) {
+        const data = await response.json();
+        setHasClaimedReward(data.completed || false);
       } else {
         setHasClaimedReward(false);
-        console.log('Haftalık hedef henüz tamamlanmamış');
       }
     } catch (error) {
       console.error('Haftalık hedef durumu kontrol hatası:', error);
+      setHasClaimedReward(false);
     }
   };
 
-  // Component mount olduğunda ve hafta değiştiğinde Firebase'den durumu kontrol et
+  // Component mount olduğunda ve hafta değiştiğinde API'den durumu kontrol et
   useEffect(() => {
     checkWeeklyGoalStatus();
-  }, [completedDays, workautDays]); // completedDays veya workautDays değiştiğinde tekrar kontrol et
+  }, [completedDays, workoutDays]); // completedDays veya workoutDays değiştiğinde tekrar kontrol et
 
   // Hafta değişimini kontrol et
   useEffect(() => {
@@ -104,36 +112,54 @@ const WeeklyGoal = ({
   const handleWeeklyGoalReward = async () => {
     if (isWeeklyGoalCompleted) {
       try {
-        const userId = auth.currentUser?.uid;
-        if (!userId) return;
-
         const pointsEarned = 100; // Haftalık hedef tamamlama puanı
         const weekKey = getWeekKey();
 
-        // Firebase'e haftalık hedef tamamlama puanını ekle
-        await addUserPoints(userId, "Haftalık Hedef Tamamlama");
-        dispatch(addPoints(pointsEarned));
-
-        // Firebase'e haftalık hedef tamamlama durumunu kaydet
-        const weeklyGoalRef = doc(firestoreDB, 'weekly_goals', weekKey);
-        await setDoc(weeklyGoalRef, {
-          userId,
-          weekStartDate: getWeekStartDate(),
-          completed: true,
-          pointsEarned,
-          completedDays: completedDays,
-          totalDays: Days,
-          completedAt: serverTimestamp(),
+        // API'ye puan ekle
+        const token = await AsyncStorage.getItem('authToken');
+        const pointsResponse = await fetch(`${API_URL}/user/points/add`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            points: pointsEarned,
+            reason: "Haftalık Hedef Tamamlama"
+          }),
         });
 
-        // Hedefi sıfırla - ödül alındı olarak işaretle
-        setHasClaimedReward(true);
-        
-        console.log('Haftalık hedef tamamlandı ve Firebase\'e kaydedildi');
-        
-        // Dialog'u göster
-        setDialogMessage(`Haftalık hedefinizi tamamladınız!\n+${pointsEarned} puan kazandınız!\n\nYeni hafta için hedefiniz sıfırlandı.`);
-        setDialogVisible(true);
+        if (pointsResponse.ok) {
+          dispatch(addPoints(pointsEarned));
+        }
+
+        // API'ye haftalık hedef tamamlama durumunu kaydet
+        const weeklyGoalResponse = await fetch(`${API_URL}/weekly-goals`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            weekKey,
+            weekStartDate: getWeekStartDate(),
+            completed: true,
+            pointsEarned,
+            completedDays: completedDays,
+            totalDays: Days,
+          }),
+        });
+
+        if (weeklyGoalResponse.ok) {
+          // Hedefi sıfırla - ödül alındı olarak işaretle
+          setHasClaimedReward(true);
+          
+          console.log('Haftalık hedef tamamlandı ve API\'ye kaydedildi');
+          
+          // Dialog'u göster
+          setDialogMessage(`Haftalık hedefinizi tamamladınız!\n+${pointsEarned} puan kazandınız!\n\nYeni hafta için hedefiniz sıfırlandı.`);
+          setDialogVisible(true);
+        }
       } catch (error) {
         console.error('Puan ekleme hatası:', error);
         setDialogMessage("Puan eklenirken bir sorun oluştu.");

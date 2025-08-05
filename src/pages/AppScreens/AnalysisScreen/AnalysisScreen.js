@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View, Alert, ScrollView, Modal, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { loadUserExercises } from "../../../redux/userExercisesSlice";
+import { StyleSheet, Text, View, Alert, ScrollView, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import SegmentedControl from "../../../components/SegmentedControl/SegmentedControl";
 import ExerciseLogCard from "../../../components/ExerciseLogCard/ExerciseLogCard";
 import CustomHeader from "../../../components/CustomHeader/CustomHeader";
@@ -10,19 +9,38 @@ import { calculateCalories } from "../../../utils/calorieCalculator";
 
 const AnalysisScreen = () => {
   const dispatch = useDispatch();
-  const userData = useSelector((state) => state.data.userData.userInformation);
-  const userExercises = useSelector((state) => state.userExercises.items);
+  const { workouts, loading } = useSelector((state) => state.exercises);
+  const { profile } = useSelector((state) => state.user);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  useEffect(() => {
-    dispatch(loadUserExercises());
-  }, [dispatch]);
 
-  // workautDays'i userData'dan al
-  const workautDays = userData?.workautDays || [];
+  // User data from Redux
+  const userData = {
+    weight: parseFloat(profile?.weight) || 70, // String'i number'a çevir
+    workout_days: profile?.workout_days || ["Pazartesi", "Çarşamba", "Cuma"],
+    height: parseFloat(profile?.height) || 170, // String'i number'a çevir
+    gender: profile?.gender || "Erkek",
+    age: new Date().getFullYear() - (profile?.birth_year || 1998), // Yaş hesapla
+  };
 
-  console.log("------->",userData.weight);
+
+
+  
+  // Backend'den gelen workout verilerini formatla
+  const userExercises = workouts.map(workout => ({
+    id: workout.id,
+    activityTitle: workout.activity_title,
+    duration: workout.duration,
+    unit: workout.unit === 'dk' ? 'dakika' : workout.unit,
+    createdAt: workout.created_at,
+    rating: workout.rating,
+    notes: workout.note,
+    body_parts: workout.body_parts,
+    supplements: workout.supplements
+  }));
+ 
+  const workautDays = userData.workout_days;
 
 
   // Egzersiz kayıtlarını tarihe göre sırala (en yeni önce)
@@ -30,9 +48,14 @@ const AnalysisScreen = () => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
-  // Firebase'den gelen verileri kalori verilerine dönüştür
+  // Backend'den gelen workout verilerinden kalori verilerine dönüştür
   const processCalorieData = () => {
-    if (!userExercises || userExercises.length === 0) return null;
+    if (!userExercises || userExercises.length === 0) {
+      console.log("No exercises found for calorie calculation");
+      return null;
+    }
+
+
 
     // Günlük veriler (son 6 gün)
     const dailyData = [];
@@ -43,9 +66,12 @@ const AnalysisScreen = () => {
         const exerciseDate = new Date(exercise.createdAt);
         return exerciseDate.toDateString() === date.toDateString();
       });
+      
       const totalCalories = dayExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        return sum + calories;
       }, 0);
+      
       dailyData.push(totalCalories);
     }
 
@@ -59,11 +85,12 @@ const AnalysisScreen = () => {
         return exerciseDate.toDateString() === date.toDateString();
       });
       const totalCalories = dayExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight  );
+        const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        return sum + calories;
       }, 0);
       weeklyData.push(totalCalories);
     }
-
+ 
     // Aylık veriler (son 4 hafta)
     const monthlyData = [];
     for (let i = 3; i >= 0; i--) {
@@ -78,7 +105,8 @@ const AnalysisScreen = () => {
       });
       
       const totalCalories = weekExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        return sum + calories;
       }, 0);
       monthlyData.push(totalCalories);
     }
@@ -99,7 +127,8 @@ const AnalysisScreen = () => {
       });
       
       const totalCalories = monthExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        return sum + calories;
       }, 0);
       sixMonthData.push(totalCalories);
     }
@@ -120,10 +149,28 @@ const AnalysisScreen = () => {
       });
       
       const totalCalories = monthExercises.reduce((sum, exercise) => {
-        return sum + calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+        return sum + calories;
       }, 0);
       yearlyData.push(totalCalories);
     }
+
+    // Toplam kalorileri hesapla
+    const totalDaily = dailyData.reduce((sum, val) => sum + val, 0);
+    const totalWeekly = weeklyData.reduce((sum, val) => sum + val, 0);
+    const totalMonthly = monthlyData.reduce((sum, val) => sum + val, 0);
+    const totalSixMonth = sixMonthData.reduce((sum, val) => sum + val, 0);
+    const totalYearly = yearlyData.reduce((sum, val) => sum + val, 0);
+    
+    // Tüm egzersizlerin toplam kalorisi
+    const totalAllExercises = userExercises.reduce((sum, exercise) => {
+      const calories = calculateCalories(exercise.duration, exercise.unit, exercise.activityTitle, userData.weight);
+      return sum + calories;
+    }, 0);
+    
+
+
+
 
     return {
       G: dailyData,
@@ -131,11 +178,21 @@ const AnalysisScreen = () => {
       A: monthlyData,
       "6A": sixMonthData,
       Y: yearlyData,
+      // Toplam değerler
+      totals: {
+        G: totalDaily,
+        H: totalWeekly,
+        A: totalMonthly,
+        "6A": totalSixMonth,
+        Y: totalYearly,
+      }
     };
   };
-
+ 
   const calorieData = processCalorieData();
+  
 
+  
   const handleEditExercise = (exercise) => {
     setSelectedExercise(exercise);
     setIsModalVisible(true);
@@ -146,6 +203,18 @@ const AnalysisScreen = () => {
     setSelectedExercise(null);
   };
 
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <CustomHeader title="Analizler" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B6B" />
+          <Text style={styles.loadingText}>Veriler yükleniyor...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -167,6 +236,7 @@ const AnalysisScreen = () => {
               <ExerciseLogCard 
                 key={exercise.id} 
                 exercise={exercise} 
+                userWeight={userData.weight}
                 onEdit={handleEditExercise} 
               />
             ))
@@ -189,6 +259,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8F8F8",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
   },
   scrollView: {
     flex: 1,

@@ -1,121 +1,99 @@
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useRoute } from '@react-navigation/native'
 import CustomHeader from '../../../components/CustomHeader/CustomHeader'
 import Icon from 'react-native-vector-icons/FontAwesome6'
 import { colors } from '../../../utils/Colors/Color'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { purchaseReward } from '../../../redux/rewardsSlice'
+import { API_IMAGE_BASE_URL } from '@env';
 
-const { width } = Dimensions.get('window');
+const IMAGE_BASE_URL = API_IMAGE_BASE_URL || 'http://10.0.2.2:5000';
+
+// Figma tasarımındaki renkleri doğrudan kullanalım
+const figmaColors = {
+    background: '#FFFFFF',
+    textPrimary: '#000000',
+    textSecondary: 'rgba(0, 0, 0, 0.6)',
+    priceColor: '#3A00E5', // GP rengi için parlak mavi
+    buttonDisabledBackground: '#E0E0E0',
+    buttonDisabledText: 'rgba(0, 0, 0, 0.87)',
+    containerBackground: '#F5F5F5', // Alt bar arka planı
+};
+
 
 const StoreDetailScreen = () => {
+    const dispatch = useDispatch();
     const { item } = useRoute().params
-    const [selectedImage, setSelectedImage] = useState(0)
-    const { currentPoints } = useSelector((state) => state.points);
-    
-    // Örnek resim galerisi (gerçek uygulamada item'dan gelecek)
-    const images = [item.img, item.img, item.img, item.img]
+    const { points } = useSelector((state) => state.points);
+    const currentPoints = points || 0;
+
+    // Örnek veri (item objesi bu alanları içermeli)
+    const mockItem = {
+        id: item.id || '1',
+        title: item.title || 'SONY Premium Wireless Headphones',
+        description: item.description || 'The technology with two noise sensors and two microphones on each ear cup detects ambient noise and sends the data to the HD noise minimization processor QN1. Using a new algorithm, the QN1 then processes and minimizes noise for different acoustic environments in real time. Together with a new Bluetooth Audio SoC',
+        price: item.price || 400,
+        img: item.img, // Bu zaten geliyor
+    };
+
+    // Backend'den gelen resim URL'ini oluştur
+    const imageUrl = `${IMAGE_BASE_URL}${mockItem.img}`;
     
     // Kullanıcının puanı yeterli mi kontrol et
-    const hasEnoughPoints = currentPoints >= item.price;
-    
+    const hasEnoughPoints = currentPoints >= mockItem.price;
+
     return (
         <View style={styles.container}>
-    
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                {/* Image Slider */}
+                {/* Image Container */}
                 <View style={styles.imageContainer}>
-                    <Image source={item.img} style={styles.mainImage} />
-                    
-                    {/* Image Indicators */}
-                    <View style={styles.indicatorsContainer}>
-                        {images.map((_, index) => (
-                            <View 
-                                key={index} 
-                                style={[
-                                    styles.indicator, 
-                                    selectedImage === index && styles.activeIndicator
-                                ]} 
-                            />
-                        ))}
-                    </View>
+                    <Image source={{ uri: imageUrl }} style={styles.mainImage} />
                 </View>
 
                 {/* Content */}
                 <View style={styles.content}>
-                    {/* Title and Price */}
-                    <View style={styles.headerSection}>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <View style={styles.priceContainer}>
-                            <Text style={styles.price}>{item.price}</Text>
-                            <Text style={styles.currency}> GP</Text>
-                        </View>
-                    </View>
-
-                    {/* Model Info */}
-                    <View style={styles.modelSection}>
-                        <Text style={styles.modelLabel}>Model:</Text>
-                        <Text style={styles.modelText}>{item.model}</Text>
-                    </View>
-
-                    {/* Description */}
-                    <View style={styles.descriptionSection}>
-                        <Text style={styles.descriptionTitle}>Açıklama</Text>
-                        <Text style={styles.descriptionText}>{item.desc}</Text>
-                    </View>
-
-                    {/* Features */}
-                    <View style={styles.featuresSection}>
-                        <Text style={styles.featuresTitle}>Özellikler</Text>
-                        <View style={styles.featureItem}>
-                            <Icon name="check-circle" size={16} color={colors.MainColor} />
-                            <Text style={styles.featureText}>Yüksek kaliteli ses</Text>
-                        </View>
-                        <View style={styles.featureItem}>
-                            <Icon name="check-circle" size={16} color={colors.MainColor} />
-                            <Text style={styles.featureText}>Gürültü önleme teknolojisi</Text>
-                        </View>
-                        <View style={styles.featureItem}>
-                            <Icon name="check-circle" size={16} color={colors.MainColor} />
-                            <Text style={styles.featureText}>Uzun pil ömrü</Text>
-                        </View>
-                        <View style={styles.featureItem}>
-                            <Icon name="check-circle" size={16} color={colors.MainColor} />
-                            <Text style={styles.featureText}>Kablosuz bağlantı</Text>
-                        </View>
-                    </View>
-
-
-                                        <View style={styles.bottomBar}>
-                        <View style={styles.priceDisplay}>
-                            <Text style={styles.priceText}>{item.price} GP</Text>
-                        </View>
-                        <TouchableOpacity 
-                            style={[
-                                styles.statusButton,
-                                hasEnoughPoints ? styles.statusButtonActive : styles.statusButtonDisabled
-                            ]}
-                            disabled={!hasEnoughPoints}
-                            onPress={() => {
-                                if (hasEnoughPoints) {
-                                    // Hediye alma işlemi burada yapılacak
-                                    console.log('Hediye alınıyor:', item.title);
-                                }
-                            }}
-                        >
-                            <Text style={[
-                                styles.statusButtonText,
-                                hasEnoughPoints ? styles.statusButtonTextActive : styles.statusButtonTextDisabled
-                            ]}>
-                                {hasEnoughPoints ? 'Hediyeyi Al' : 'Puanınız Yetersiz'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                    <Text style={styles.title}>{mockItem.title}</Text>
+                    <Text style={styles.descriptionText}>{mockItem.description}</Text>
                 </View>
- 
             </ScrollView>
 
-
+            {/* Bottom Purchase Bar - Figma Design */}
+            <View style={styles.purchaseContainer}>
+                <Text style={styles.priceText}>{mockItem.price} GP</Text>
+                <TouchableOpacity
+                    style={[
+                        styles.purchaseButton,
+                        !hasEnoughPoints && styles.purchaseButtonDisabled
+                    ]}
+                    disabled={!hasEnoughPoints}
+                    onPress={async () => {
+                        if (hasEnoughPoints) {
+                            try {
+                                await dispatch(purchaseReward(mockItem.id));
+                                Alert.alert(
+                                    'Başarılı!',
+                                    `${mockItem.title} başarıyla satın alındı!`,
+                                    [{ text: 'Tamam' }]
+                                );
+                            } catch (error) {
+                                Alert.alert(
+                                    'Hata!',
+                                    'Hediye alınırken bir hata oluştu.',
+                                    [{ text: 'Tamam' }]
+                                );
+                            }
+                        }
+                    }}
+                >
+                    <Text style={[
+                        styles.purchaseButtonText,
+                        !hasEnoughPoints && styles.purchaseButtonTextDisabled
+                    ]}>
+                        {hasEnoughPoints ? 'Hediyeyi Al' : 'Puanınız Yetersiz'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
@@ -125,179 +103,86 @@ export default StoreDetailScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: figmaColors.background,
     },
     scrollView: {
         flex: 1,
     },
     imageContainer: {
-        position: 'relative',
-        height: 300,
+        width: '100%',
+        height: 350, // Resim alanını biraz daha büyüttük
         backgroundColor: '#f8f8f8',
     },
     mainImage: {
         width: '100%',
         height: '100%',
-        resizeMode: 'cover',
-    },
-    indicatorsContainer: {
-        position: 'absolute',
-        bottom: 20,
-        left: 0,
-        right: 0,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 8,
-    },
-    indicator: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    },
-    activeIndicator: {
-        backgroundColor: colors.MainColor,
-        width: 24,
+        resizeMode: 'contain', // 'cover' yerine 'contain' daha iyi sonuç verebilir
     },
     content: {
-        padding: 20,
-    },
-    headerSection: {
-        marginBottom: 20,
+        paddingHorizontal: 20,
+        paddingTop: 24,
+        paddingBottom: 120, // Alt barın içeriği ezmemesi için boşluk
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 8,
-        fontFamily: 'Medium',
-    },
-    priceContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    price: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: colors.MainColor,
-        fontFamily: 'ExtraBold',
-    },
-    currency: {
-        fontSize: 18,
-        color: colors.textColor,
-        marginLeft: 4,
-        fontFamily: 'Medium',
-    },
-    modelSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#f8f8f8',
-        borderRadius: 8,
-    },
-    modelLabel: {
-        fontSize: 14,
-        color: '#666',
-        marginRight: 8,
-        fontFamily: 'Medium',
-    },
-    modelText: {
-        fontSize: 14,
-        color: '#333',
-        fontFamily: 'Regular',
-    },
-    descriptionSection: {
-        marginBottom: 24,
-    },
-    descriptionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        color: figmaColors.textPrimary,
         marginBottom: 12,
-        fontFamily: 'Medium',
+        // fontFamily: 'Your-Bold-Font', // Projenizdeki fontu ekleyin
     },
     descriptionText: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 15,
+        color: figmaColors.textSecondary,
         lineHeight: 22,
-        fontFamily: 'Regular',
+        // fontFamily: 'Your-Regular-Font', // Projenizdeki fontu ekleyin
     },
-    featuresSection: {
-        marginBottom: 24,
-    },
-    featuresTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 16,
-        fontFamily: 'Medium',
-    },
-    featureItem: {
+    // --- New Bottom Bar Styles (Figma-like) ---
+    purchaseContainer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        right: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
-    },
-    featureText: {
-        fontSize: 14,
-        color: '#333',
-        marginLeft: 12,
-        fontFamily: 'Regular',
-    },
-
-    bottomBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        backgroundColor: '#EDEDED',
-        gap: 12,
-        height: 70,
-        marginBottom: 106,
-        borderRadius: 50,
-  
-
-    },
-    priceDisplay: {
-        flex: 1,
+        justifyContent: 'space-between',
+        backgroundColor: figmaColors.containerBackground,
+        borderRadius: 50, // Tam yuvarlak kenarlar için yüksek değer
+        paddingHorizontal: 25,
         paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
+        height: 70, // Sabit yükseklik
+        // iOS için gölge
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        // Android için gölge
+        elevation: 5,
     },
     priceText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: colors.MainColor,
-        fontFamily: 'Bold',
+        color: figmaColors.priceColor,
+        // fontFamily: 'Your-Bold-Font',
     },
-    statusButton: {
-        flex: 2,
+    purchaseButton: {
         paddingVertical: 12,
-        borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
+        paddingHorizontal: 24,
+        borderRadius: 30, // Pürüzsüz hap şeklinde buton
+        backgroundColor: '#007AFF', // Örnek aktif renk (Figma'da belirtilmemiş)
     },
-    statusButtonActive: {
-        backgroundColor: colors.MainColor,
-        height: '100%', 
+    purchaseButtonDisabled: {
+        backgroundColor: figmaColors.buttonDisabledBackground,
     },
-    statusButtonDisabled: {
-        backgroundColor: '#D8D8D8',
-        height: '100%', 
-    },
-    statusButtonText: {
+    purchaseButtonText: {
+        color: '#FFFFFF',
         fontSize: 16,
-        fontWeight: 'bold',
-        fontFamily: 'Medium',
+        fontWeight: '600',
+        // fontFamily: 'Your-Semibold-Font',
     },
-    statusButtonTextActive: {
-        color: '#fff',
-    },
-    statusButtonTextDisabled: {
-        color: '#666',
+    purchaseButtonTextDisabled: {
+        color: figmaColors.buttonDisabledText,
     },
 })

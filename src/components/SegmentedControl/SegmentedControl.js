@@ -106,10 +106,7 @@ const SegmentedControl = ({ calorieData }) => {
     }));
   };
 
-  const totalCalories = dataToUse?.[selectedOption]?.reduce(
-    (acc, val) => acc + val,
-    0
-  ) || 0;
+  const totalCalories = dataToUse?.totals?.[selectedOption] || 0;
   
   const totalLabel = {
     G: "Bugün",
@@ -120,9 +117,6 @@ const SegmentedControl = ({ calorieData }) => {
   }[selectedOption];
 
   const CustomBarChart = ({ data }) => {
-    console.log("CustomBarChart data:", data);
-    console.log("Selected option:", selectedOption);
-    console.log("DataToUse:", dataToUse);
     
     if (!data || data.length === 0) {
       return (

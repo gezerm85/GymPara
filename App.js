@@ -7,7 +7,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { store } from "./src/redux/store";
 import { PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
-import { auth } from "./src/firebase/firebaseConfig";
 
 
 SplashScreen.preventAutoHideAsync();
