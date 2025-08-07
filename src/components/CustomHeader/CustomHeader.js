@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#fff',
-    marginVertical: 24,
+    marginBottom: 24,
 
   },
   leftContainer: {

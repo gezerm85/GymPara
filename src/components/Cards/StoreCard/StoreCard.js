@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { colors } from '../../../utils/Colors/Color'
 import { API_IMAGE_BASE_URL } from '@env';
+import Gift from '../../../assets/images/gift.png'
 
 const IMAGE_BASE_URL = API_IMAGE_BASE_URL || 'http://10.0.2.2:5000';
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useSelector } from "react-redux";
 import LoginScreen from "../../pages/AuthScreens/LoginScreen/LoginScreen";
 import RegisterScreen from "../../pages/AuthScreens/RegisterScreen/RegisterScreen";
 import GenderSelectionScreen from "../../pages/WelcomeScreens/GenderSelectionScreen/GenderSelectionScreen";
@@ -18,8 +19,20 @@ import LoginLeft from "../../components/Cards/LoginLeft/LoginLeft";
 const Stack = createNativeStackNavigator();
 
 const WelcomeStack = () => {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { profile } = useSelector((state) => state.user);
+
+  // Eğer kullanıcı giriş yapmışsa ama welcome tamamlanmamışsa, welcome sürecinin ilk ekranına git
+  const initialRouteName = isAuthenticated && profile && !profile.welcome_completed ? "Gender" : "LoginScreen";
+
+  console.log('🎯 WelcomeStack - Initial Route:', initialRouteName);
+  console.log('  - isAuthenticated:', isAuthenticated);
+  console.log('  - profile:', profile ? 'Yüklendi' : 'Yüklenmedi');
+  console.log('  - welcome_completed:', profile?.welcome_completed);
+
   return (
     <Stack.Navigator
+      initialRouteName={initialRouteName}
       screenOptions={{
         headerTitle: "",
         headerBackTitleVisible: false,

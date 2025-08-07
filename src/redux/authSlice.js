@@ -69,12 +69,43 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await apiCall('/auth/logout', 'POST');
-      // Local storage'ı temizle
-      await AsyncStorage.multiRemove(['authToken', 'userData']);
+      
+      // Remember me kontrolü
+      const rememberMe = await AsyncStorage.getItem('rememberMe');
+      
+      if (rememberMe === 'true') {
+        // Remember me açıksa sadece token'ı sil, diğer bilgileri koru
+        await AsyncStorage.removeItem('authToken');
+        await AsyncStorage.removeItem('userData');
+      } else {
+        // Remember me kapalıysa tüm bilgileri sil
+        await AsyncStorage.multiRemove([
+          'authToken', 
+          'userData', 
+          'rememberMe', 
+          'rememberedEmail', 
+          'rememberedPassword'
+        ]);
+      }
+      
       return true;
     } catch (error) {
       // Hata olsa bile local storage'ı temizle
-      await AsyncStorage.multiRemove(['authToken', 'userData']);
+      const rememberMe = await AsyncStorage.getItem('rememberMe');
+      
+      if (rememberMe === 'true') {
+        await AsyncStorage.removeItem('authToken');
+        await AsyncStorage.removeItem('userData');
+      } else {
+        await AsyncStorage.multiRemove([
+          'authToken', 
+          'userData', 
+          'rememberMe', 
+          'rememberedEmail', 
+          'rememberedPassword'
+        ]);
+      }
+      
       return rejectWithValue(error.message);
     }
   }

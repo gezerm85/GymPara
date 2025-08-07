@@ -20,12 +20,18 @@ import Animated, { RotateInUpLeft } from "react-native-reanimated";
 import loaded from "../../../assets/Lottie/completed.json";
 import { colors } from "../../../utils/Colors/Color";
 import CustomButton from "../../../components/CustomButton/CustomButton";
+import { API_BASE_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const API_URL = API_BASE_URL || 'http://10.0.2.2:5000/api';
 
 const PersonalizedPlanCompletionScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.user);
+  const { userData } = useSelector((state) => state.data);
   const [animationFinished, setAnimationFinished] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Hata mesajını göster
   useEffect(() => {
@@ -35,10 +41,65 @@ const PersonalizedPlanCompletionScreen = () => {
     }
   }, [error, dispatch]);
 
-  const handleOnPress = async () => {
+  // API'ye profil verilerini gönder
+  const submitProfileData = async () => {
     try {
-      await dispatch(markWelcomeCompleted());
+      const token = await AsyncStorage.getItem('authToken');
       
+      if (!token) {
+        throw new Error('Token bulunamadı');
+      }
+
+      // API'ye gönderilecek veri formatını hazırla
+      const profileData = {
+        gender: userData.gender,
+        birth_year: userData.year,
+        activity_level: userData.activityLevel,
+        motivation: userData.motivation,
+        weight: userData.weight,
+        height: userData.height,
+        workout_days: userData.workautDays
+      };
+
+      console.log('📤 API\'ye gönderilecek profil verisi:', profileData);
+
+      // POST /api/profile
+      const profileResponse = await fetch(`${API_URL}/profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      if (!profileResponse.ok) {
+        const errorData = await profileResponse.json();
+        throw new Error(errorData.message || 'Profil verisi gönderilemedi');
+      }
+
+      console.log('✅ Profil verisi başarıyla gönderildi');
+
+      // PUT /api/profile/welcome
+      const welcomeResponse = await fetch(`${API_URL}/profile/welcome`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ welcome_completed: true }),
+      });
+
+      if (!welcomeResponse.ok) {
+        const errorData = await welcomeResponse.json();
+        throw new Error(errorData.message || 'Welcome durumu güncellenemedi');
+      }
+
+      console.log('✅ Welcome durumu başarıyla güncellendi');
+
+      // Redux'ta welcome_completed'i güncelle
+      await dispatch(markWelcomeCompleted());
+
       // Ana ekrana yönlendir
       if (navigationRef.isReady()) {
         navigationRef.dispatch(
@@ -50,9 +111,20 @@ const PersonalizedPlanCompletionScreen = () => {
           })
         );
       }
+
     } catch (error) {
-      console.error('Welcome completed hatası:', error);
+      console.error('❌ Profil gönderme hatası:', error);
+      Alert.alert("Hata", error.message || "Veriler gönderilirken bir sorun oluştu");
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleOnPress = async () => {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    await submitProfileData();
   };
 
   return (
@@ -74,7 +146,18 @@ const PersonalizedPlanCompletionScreen = () => {
         </Animated.Text>
       )}
       <View style={styles.btnbox}>
-        <CustomButton title={"Antremana Başla!"} onPress={handleOnPress} />
+        <CustomButton 
+          title={isSubmitting ? "Gönderiliyor..." : "Antremana Başla!"} 
+          onPress={handleOnPress}
+          disabled={isSubmitting}
+        />
+        {isSubmitting && (
+          <ActivityIndicator 
+            size="small" 
+            color={colors.MainColor} 
+            style={styles.loadingIndicator}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -114,5 +197,9 @@ const styles = StyleSheet.create({
   },
   btnbox: {
     marginBottom: 62,
+    alignItems: 'center',
+  },
+  loadingIndicator: {
+    marginTop: 10,
   },
 });

@@ -45,11 +45,17 @@ export const getUserProfile = createAsyncThunk(
   'user/getProfile',
   async (_, { rejectWithValue }) => {
     try {
+      console.log('🔄 getUserProfile çağrıldı');
+      
       // Test için önce token olmadan deneyelim
       const result = await apiCall('/user/full', 'GET');
+      
+      console.log('📊 API\'den gelen profile:', result);
+      console.log('📊 welcome_completed:', result.welcome_completed);
+      
       return result;
     } catch (error) {
-      console.error('API Error - getUserProfile:', error);
+      console.error('❌ API Error - getUserProfile:', error);
       return rejectWithValue(error.message);
     }
   }
@@ -71,20 +77,35 @@ export const markWelcomeCompleted = createAsyncThunk(
   'user/markWelcomeCompleted',
   async (_, { rejectWithValue }) => {
     try {
-      const result = await apiCall('/user/welcome-completed', 'PUT', { welcome_completed: true });
+      console.log('🔄 markWelcomeCompleted çağrıldı');
       
-      // AsyncStorage'ı güncelle
-      const currentUserData = await AsyncStorage.getItem('userData');
-      if (currentUserData) {
-        const updatedUserData = {
-          ...JSON.parse(currentUserData),
-          welcome_completed: true
-        };
-        await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+      const token = await AsyncStorage.getItem('authToken');
+      
+      if (!token) {
+        throw new Error('Token bulunamadı');
       }
+
+      // PUT /api/profile/welcome
+      const response = await fetch(`${API_URL}/profile/welcome`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ welcome_completed: true }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Welcome durumu güncellenemedi');
+      }
+
+      const result = await response.json();
+      console.log('✅ Welcome durumu başarıyla güncellendi:', result);
       
       return result;
     } catch (error) {
+      console.error('❌ markWelcomeCompleted hatası:', error);
       return rejectWithValue(error.message);
     }
   }

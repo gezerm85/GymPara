@@ -13,11 +13,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { navigationRef } from '../../../router/Navigation/navigationUtils';
-import { CommonActions } from '@react-navigation/native';
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearError } from "../../../redux/authSlice";
-import { loadUserData } from "../../../redux/dataSlice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
@@ -27,27 +24,30 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
-  // Auth durumunu izle
+  // Component mount olduğunda kaydedilmiş bilgileri yükle
   useEffect(() => {
-    if (isAuthenticated) {
-      // Kullanıcı verilerini Redux'a yükle
-      dispatch(loadUserData());
-      
-      // Navigation'ı yeniden başlat
-      if (navigationRef.isReady()) {
-        navigationRef.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              { name: 'MainBottomTabs' }
-            ],
-          })
-        );
+    const loadSavedCredentials = async () => {
+      try {
+        const savedRememberMe = await AsyncStorage.getItem('rememberMe');
+        const savedEmail = await AsyncStorage.getItem('rememberedEmail');
+        const savedPassword = await AsyncStorage.getItem('rememberedPassword');
+        
+        if (savedRememberMe === 'true' && savedEmail && savedPassword) {
+          setEmail(savedEmail);
+          setPassword(savedPassword);
+          setRememberMe(true);
+        } else {
+          setRememberMe(false);
+        }
+      } catch (error) {
+        console.log('Kaydedilmiş bilgiler yüklenemedi:', error);
       }
-    }
-  }, [isAuthenticated, dispatch]);
+    };
+
+    loadSavedCredentials();
+  }, []);
 
   // Hata mesajını göster
   useEffect(() => {
@@ -88,12 +88,14 @@ const LoginScreen = () => {
         await AsyncStorage.setItem('rememberedEmail', email);
         await AsyncStorage.setItem('rememberedPassword', password);
       } else {
+        // Remember me kapalıysa tüm kaydedilmiş bilgileri sil
         await AsyncStorage.removeItem('rememberMe');
         await AsyncStorage.removeItem('rememberedEmail');
         await AsyncStorage.removeItem('rememberedPassword');
+        await AsyncStorage.removeItem('authToken'); // Token'ı da sil
       }
 
-      // Login işlemi
+      // Login işlemi - Navigation.js yönlendirmeyi handle edecek
       await dispatch(loginUser({ email, password }));
       
     } catch (error) {

@@ -13,7 +13,6 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../../redux/authSlice";
-import { getUserProfile, clearError } from "../../../redux/userSlice";
 import { navigationRef } from '../../../router/Navigation/navigationUtils';
 import { CommonActions } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -28,24 +27,10 @@ const ProfileScreen = () => {
   const dispatch = useDispatch();
   const { profile, loading, error, uploadLoading, uploadError } = useSelector((state) => state.user);
 
-  // Component mount olduğunda profil verilerini yükle
-  useEffect(() => {
-    dispatch(getUserProfile());
-  }, [dispatch]);
 
-  // Hata mesajlarını göster
-  useEffect(() => {
-    if (error) {
-      Alert.alert("Hata", error);
-      dispatch(clearError());
-    }
-    if (uploadError) {
-      Alert.alert("Yükleme Hatası", uploadError);
-      dispatch(clearError());
-    }
-  }, [error, uploadError, dispatch]);
 
-  console.log('ProfileScreen - profile data:', profile);
+
+
 
   const handleLogout = async () => {
     Alert.alert(

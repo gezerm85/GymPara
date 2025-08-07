@@ -5,6 +5,7 @@ import CarouselComponent from "../../../components/CarouselComponent/CarouselCom
 import CustomHeader from "../../../components/CustomHeader/CustomHeader";
 import WeeklyGoal from "../../../components/CustomCalendar/WeeklyGoalComponent ";
 import { loadUserExercises } from "../../../redux/userExercisesSlice";
+import LeaderboardComponent from "../../../components/LeaderboardComponent/LeaderboardComponent";
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -35,6 +36,12 @@ const HomeScreen = () => {
       <View style={styles.bodyContainer}>
         <CarouselComponent />
       </View>
+      <View style={styles.leaderboardContainer}>
+        <LeaderboardComponent />
+      </View>
+      <View style={styles.adContainer}>
+        <Text>Reklam cartları</Text>
+      </View>
     </View>
   );
 };
@@ -45,13 +52,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
+    gap: 16,
+    
   },
   weeklyGoalContainer: {
-    paddingVertical: 8,
     paddingHorizontal: 16,
   },
   bodyContainer: {
     marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  leaderboardContainer: {
+    paddingHorizontal: 16,
+    height: 100,
+  },
+  adContainer: {
     paddingHorizontal: 16,
   },
 });
