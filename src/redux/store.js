@@ -9,6 +9,7 @@ import authReducer from "./authSlice";
 import userReducer from "./userSlice";
 import exercisesReducer from "./exercisesSlice";
 import rewardsReducer from "./rewardsSlice";
+import leaderboardReducer from "./leaderboardSlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     user: userReducer,
     exercises: exercisesReducer,
     rewards: rewardsReducer,
+    leaderboard: leaderboardReducer,
   },
 });
 

@@ -7,6 +7,8 @@ import { loadUserData } from "../../redux/dataSlice";
 import { getUserProfile } from "../../redux/userSlice";
 import { fetchUserPoints } from "../../redux/pointsSlice";
 import { fetchCategories, fetchExercises, fetchWorkouts } from "../../redux/exercisesSlice";
+import { fetchCarouselData } from "../../redux/carouselSlice";
+import { fetchLeaderboardData } from "../../redux/leaderboardSlice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Stacks
@@ -81,7 +83,9 @@ const Navigation = () => {
             dispatch(fetchUserPoints()),
             dispatch(fetchCategories()),
             dispatch(fetchExercises()),
-            dispatch(fetchWorkouts())
+            dispatch(fetchWorkouts()),
+            dispatch(fetchCarouselData()),
+            dispatch(fetchLeaderboardData())
           ]);
           
           console.log('✅ Tüm kullanıcı verileri yüklendi');

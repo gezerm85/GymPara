@@ -1,37 +1,24 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_BASE_URL } from '@env';
 
-// Mock carousel verilerini çek
+const API_URL = API_BASE_URL || 'http://10.0.2.2:5000/api';
+
+// Gerçek API'den carousel verilerini çek
 export const fetchCarouselData = createAsyncThunk(
   'carousel/fetchCarouselData',
   async () => {
     try {
-      // Mock carousel verileri
-      const carouselItems = [
-        {
-          id: 1,
-          title: "Yeni Antrenman Programı",
-          description: "Kişiselleştirilmiş antrenman programınızı keşfedin",
-          color: "#FF6B6B",
-          img: ""
-        },
-        {
-          id: 2,
-          title: "Beslenme Rehberi",
-          description: "Sağlıklı beslenme ipuçları ve öneriler",
-          color: "#4ECDC4",
-          img: ""
-        },
-        {
-          id: 3,
-          title: "İlerleme Takibi",
-          description: "Fitness hedeflerinizi takip edin ve başarılarınızı görün",
-          color: "#45B7D1",
-          img: ""
-        }
-      ];
+      const response = await fetch(`${API_URL}/carousel`);
       
-      // ID'ye göre sırala
-      carouselItems.sort((a, b) => a.id - b.id);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const carouselItems = await response.json();
+      
+      // order_number'a göre sırala
+      carouselItems.sort((a, b) => a.order_number - b.order_number);
+      
       return carouselItems;
     } catch (error) {
       console.error("Carousel verileri yüklenirken hata:", error);

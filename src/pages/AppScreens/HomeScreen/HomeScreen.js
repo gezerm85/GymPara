@@ -1,17 +1,30 @@
-import { StyleSheet, Text, View, Button, Modal, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  Modal,
+  Dimensions,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 import CarouselComponent from "../../../components/CarouselComponent/CarouselComponent";
 import CustomHeader from "../../../components/CustomHeader/CustomHeader";
-import WeeklyGoal from "../../../components/CustomCalendar/WeeklyGoalComponent ";
+import WeeklyGoal from "../../../components/CustomCalendar/WeeklyGoalComponent";
 import { loadUserExercises } from "../../../redux/userExercisesSlice";
 import LeaderboardComponent from "../../../components/LeaderboardComponent/LeaderboardComponent";
+import BonusStrip from "../../../components/BonusStrip/BonusStrip";
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.data.userData.userInformation);
   const userExercises = useSelector((state) => state.userExercises.items);
   const { profile } = useSelector((state) => state.user);
+
+  // Navigation'ı route params'dan al
+  const nav = navigation || route?.params?.navigation;
 
   // API'den gelen workout_days'i kullan, yoksa userData'dan al
   const workautDays = profile?.workout_days || userData?.workautDays || [];
@@ -37,10 +50,34 @@ const HomeScreen = () => {
         <CarouselComponent />
       </View>
       <View style={styles.leaderboardContainer}>
-        <LeaderboardComponent />
+        <LeaderboardComponent navigation={nav} />
       </View>
       <View style={styles.adContainer}>
-        <Text>Reklam cartları</Text>
+        <BonusStrip
+          items={[
+            {
+              id: "weekly",
+              title1: "Haftalık",
+              title2: "Bonus",
+              reward: "+1",
+              imageSource: require("../../../assets/images/bonus3.png"),
+            },
+            {
+              id: "daily",
+              title1: "Günlük",
+              title2: "Bonus",
+              reward: "+1",
+              imageSource: require("../../../assets/images/bonus2.png"),
+            },
+            {
+              id: "hourly",
+              title1: "Saatlik",
+              title2: "Bonus",
+              reward: "+1",
+              imageSource: require("../../../assets/images/bonus3.png"),
+            },
+          ]}
+        />
       </View>
     </View>
   );
@@ -53,21 +90,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
     gap: 16,
-    
   },
   weeklyGoalContainer: {
     paddingHorizontal: 16,
   },
   bodyContainer: {
-    marginBottom: 16,
+    marginBottom: 8,
     paddingHorizontal: 16,
   },
   leaderboardContainer: {
     paddingHorizontal: 16,
-    height: 100,
   },
   adContainer: {
     paddingHorizontal: 16,
   },
 });
-

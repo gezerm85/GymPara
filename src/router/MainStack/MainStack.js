@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../../pages/AppScreens/HomeScreen/HomeScreen";
 import ProfileScreen from "../../pages/AppScreens/ProfileScreen/ProfileScreen";
 import StoreDetailScreen from "../../pages/AppScreens/DetailScreen/StoreDetailScreen";
+import LeaderboardScreen from "../../pages/AppScreens/LeaderboardScreen/LeaderboardScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +15,6 @@ const MainStack = () => {
       }}
     >
       <Stack.Screen
-
         name="HomeScreen"
         component={HomeScreen}
       />
@@ -26,10 +26,23 @@ const MainStack = () => {
         name="StoreDetailScreen"
         component={StoreDetailScreen}
         options={{
-          headerShown: true,
-     
+          headerShown: false,
           headerTitleAlign: 'center',
-
+        }}
+      />
+      <Stack.Screen
+        name="LeaderboardScreen"
+        component={LeaderboardScreen}
+        options={{
+          headerShown: true,
+          title: "Liderlik Tablosu",
+          headerTitleAlign: 'center',
+          headerTitleStyle: {
+            fontSize: 18,
+            fontWeight: 'bold',
+          },
+       
+       
         }}
       />
     </Stack.Navigator>

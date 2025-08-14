@@ -1,29 +1,17 @@
 import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import React, { useState } from 'react'
-import { useRoute } from '@react-navigation/native'
-import CustomHeader from '../../../components/CustomHeader/CustomHeader'
-import Icon from 'react-native-vector-icons/FontAwesome6'
-import { colors } from '../../../utils/Colors/Color'
+import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSelector, useDispatch } from 'react-redux'
 import { purchaseReward } from '../../../redux/rewardsSlice'
 import { API_IMAGE_BASE_URL } from '@env';
+import Icon from 'react-native-vector-icons/FontAwesome6';
+import { colors } from '../../../utils/Colors/Color';
 
 const IMAGE_BASE_URL = API_IMAGE_BASE_URL || 'http://10.0.2.2:5000';
 
-// Figma tasarımındaki renkleri doğrudan kullanalım
-const figmaColors = {
-    background: '#FFFFFF',
-    textPrimary: '#000000',
-    textSecondary: 'rgba(0, 0, 0, 0.6)',
-    priceColor: '#3A00E5', // GP rengi için parlak mavi
-    buttonDisabledBackground: '#E0E0E0',
-    buttonDisabledText: 'rgba(0, 0, 0, 0.87)',
-    containerBackground: '#F5F5F5', // Alt bar arka planı
-};
-
-
 const StoreDetailScreen = () => {
     const dispatch = useDispatch();
+    const navigation = useNavigation();
     const { item } = useRoute().params
     const { points } = useSelector((state) => state.points);
     const currentPoints = points || 0;
@@ -45,6 +33,27 @@ const StoreDetailScreen = () => {
 
     return (
         <View style={styles.container}>
+            {/* Custom Header */}
+            <View style={styles.header}>
+                <TouchableOpacity 
+                    style={styles.backButton}
+                    onPress={() => {
+                        navigation.navigate('StoreScreen');
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'StoreScreen' }],
+                            });
+                   
+                    }}
+                >
+                    <Icon name="arrow-left" size={18} color="#333" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Ürün Detayı</Text>
+                <TouchableOpacity style={styles.shareButton}>
+                    <Icon name="share" size={18} color="#333" />
+                </TouchableOpacity>
+            </View>
+
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 {/* Image Container */}
                 <View style={styles.imageContainer}>
@@ -103,7 +112,53 @@ export default StoreDetailScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: figmaColors.background,
+        backgroundColor: colors.background,
+    },
+    // Custom Header Styles
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingTop: 16, // Status bar için
+        paddingBottom: 16,
+        backgroundColor: colors.background,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 3.84,
+        elevation: 3,
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#F8F9FA',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#E9ECEF',
+    },
+    shareButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#F8F9FA',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#E9ECEF',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: colors.textPrimary,
+        letterSpacing: 0.5,
     },
     scrollView: {
         flex: 1,
@@ -126,13 +181,13 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: figmaColors.textPrimary,
+        color: colors.textPrimary,
         marginBottom: 12,
         // fontFamily: 'Your-Bold-Font', // Projenizdeki fontu ekleyin
     },
     descriptionText: {
         fontSize: 15,
-        color: figmaColors.textSecondary,
+        color: colors.textSecondary,
         lineHeight: 22,
         // fontFamily: 'Your-Regular-Font', // Projenizdeki fontu ekleyin
     },
@@ -145,7 +200,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: figmaColors.containerBackground,
+        backgroundColor: colors.containerBackground,
         borderRadius: 50, // Tam yuvarlak kenarlar için yüksek değer
         paddingHorizontal: 25,
         paddingVertical: 12,
@@ -164,7 +219,7 @@ const styles = StyleSheet.create({
     priceText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: figmaColors.priceColor,
+        color: colors.priceColor,
         // fontFamily: 'Your-Bold-Font',
     },
     purchaseButton: {
@@ -174,7 +229,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#007AFF', // Örnek aktif renk (Figma'da belirtilmemiş)
     },
     purchaseButtonDisabled: {
-        backgroundColor: figmaColors.buttonDisabledBackground,
+        backgroundColor: colors.buttonDisabledBackground,
     },
     purchaseButtonText: {
         color: '#FFFFFF',
@@ -183,6 +238,6 @@ const styles = StyleSheet.create({
         // fontFamily: 'Your-Semibold-Font',
     },
     purchaseButtonTextDisabled: {
-        color: figmaColors.buttonDisabledText,
+        color: colors.buttonDisabledText,
     },
 })
